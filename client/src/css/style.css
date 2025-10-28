@@ -1,0 +1,21 @@
+:root {
+    color: white;
+}
+
+body {
+    padding: 0;
+    margin: 0;
+    background-color: black;
+}
+
+#root {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    width: 100vw;
+    height: 100vh;
+
+    justify-content: center;
+    align-items: center;
+}
