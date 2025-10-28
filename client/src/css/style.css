@@ -19,3 +19,9 @@ body {
     justify-content: center;
     align-items: center;
 }
+
+#sign-up-forum {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
