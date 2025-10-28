@@ -1,26 +1,16 @@
-const ROOT_ELEMENT = "#root"
-
-const LINK = "<a>"
-const BUTTON = "<button>"
-
-const PAGES = {
-    SIGN_IN: "sign-in.html",
-    SIGN_UP: "sign-up.html"
-}
+import { $root, ELEMENTS, PAGES } from "./constants"
 
 class Index {
     constructor() {
-        this.root = $(ROOT_ELEMENT);
-
-        this.signInButton = $(BUTTON).text("Sign In").click(() => {
+        const signInButton = $(ELEMENTS.BUTTON).text("Sign In").click(() => {
             this.toPage(PAGES.SIGN_IN)
         });
 
-        this.signUpButton = $(BUTTON).text("Sign Up").click(() => {
+        const signUpButton = $(ELEMENTS.BUTTON).text("Sign Up").click(() => {
             this.toPage(PAGES.SIGN_UP)
         });
 
-        this.root.append(this.signInButton).append(this.signUpButton);
+        $root.append(signInButton, signUpButton)
     }
 
     toPage = (page) => {

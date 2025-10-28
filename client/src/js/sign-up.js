@@ -1,14 +1,12 @@
+import { $root, ELEMENTS, EVENTS } from "./constants.js";
 
 class SignUp {
     constructor() {
-        // Root element where we'll attach everything
-        const root = $("#root");
-
         // Create a form
-        const form = $("<form>").attr("id", "sign-up-forum");
+        const form = $(ELEMENTS.FORM).attr("id", "sign-up-forum");
 
         // Create input fields
-        const nameInput = $("<input>")
+        const nameInput = $(ELEMENTS.INPUT)
             .attr({
                 type: "text",
                 name: "name",
@@ -16,7 +14,7 @@ class SignUp {
                 required: true
             });
 
-        const emailInput = $("<input>")
+        const emailInput = $(ELEMENTS.INPUT)
             .attr({
                 type: "email",
                 name: "email",
@@ -24,7 +22,7 @@ class SignUp {
                 required: true
             });
 
-        const passwordInput = $("<input>")
+        const passwordInput = $(ELEMENTS.INPUT)
             .attr({
                 type: "password",
                 name: "password",
@@ -33,7 +31,7 @@ class SignUp {
             });
 
         // Create submit button
-        const submitButton = $("<button>")
+        const submitButton = $(ELEMENTS.BUTTON)
             .attr("type", "submit")
             .text("Sign Up");
 
@@ -41,7 +39,7 @@ class SignUp {
         form.append(nameInput, emailInput, passwordInput, submitButton);
 
         // Handle submit
-        form.on("submit", function (e) {
+        form.on(EVENTS.SUBMIT, function (e) {
             e.preventDefault(); // prevent page reload
             const formData = {
                 name: nameInput.val(),
@@ -53,7 +51,7 @@ class SignUp {
         });
 
         // Add the form to the root
-        root.append(form);
+        $root.append(form);
     }
 }
 
