@@ -1,22 +1,25 @@
-import { $root, ELEMENTS, PAGES } from "./constants"
+import { UI } from "../lang/en/user.js";
+
+import { $root, HTML } from "./constants.js";
+
+import { WindowManager } from "./windowManager.js";
 
 class Index {
-    constructor() {
-        const signInButton = $(ELEMENTS.BUTTON).text("Sign In").click(() => {
-            this.toPage(PAGES.SIGN_IN)
-        });
+  constructor() {
+    const logInButton = $(HTML.ELEMENTS.BUTTON)
+      .text(UI.TEXT.LOG_IN_BUTTON)
+      .click(() => {
+        WindowManager.logInPage();
+      });
 
-        const signUpButton = $(ELEMENTS.BUTTON).text("Sign Up").click(() => {
-            this.toPage(PAGES.SIGN_UP)
-        });
+    const signUpButton = $(HTML.ELEMENTS.BUTTON)
+      .text(UI.TEXT.SIGN_UP_BUTTON)
+      .click(() => {
+        WindowManager.signUpPage();
+      });
 
-        $root.append(signInButton, signUpButton)
-    }
-
-    toPage = (page) => {
-        window.location.href = page;
-    }
-
+    $root.append(logInButton, signUpButton);
+  }
 }
 
 new Index();
