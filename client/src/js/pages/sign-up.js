@@ -1,10 +1,9 @@
-import { UI } from "../lang/en/user.js";
-import { $root, HTML } from "./constants.js";
+import { UI } from "../../lang/en/user.js";
+import { $root, HTML } from "../constants.js";
 
-class LogIn {
+class SignUp {
   constructor() {
-    // Create a form
-    const form = $(HTML.ELEMENTS.FORM).attr("id", "sign-up-forum");
+    const form = $(HTML.ELEMENTS.FORM).attr({ id: HTML.IDS.SIGN_UP_FORM });
 
     const emailInput = $(HTML.ELEMENTS.INPUT).attr({
       type: HTML.TYPES.EMAIL,
@@ -21,23 +20,21 @@ class LogIn {
     });
 
     // Create submit button
-    const logInButton = $(HTML.ELEMENTS.BUTTON)
+    const signUpButton = $(HTML.ELEMENTS.BUTTON)
       .attr({ type: HTML.TYPES.SUBMIT })
-      .text(UI.TEXT.LOG_IN_BUTTON);
+      .text(UI.TEXT.SIGN_UP_BUTTON);
 
     // Append all inputs and button to form
-    form.append(emailInput, passwordInput, logInButton);
+    form.append(emailInput, passwordInput, signUpButton);
 
     // Handle submit
-    form.on(HTML.EVENTS.SUBMIT, function (e) {
-      e.preventDefault(); // prevent page reload
+    form.on(HTML.EVENTS.SUBMIT, function (event) {
+      event.preventDefault(); // prevent page reload
       const formData = {
-        name: nameInput.val(),
         email: emailInput.val(),
         password: passwordInput.val(),
       };
-      console.log("Form submitted:", formData);
-      alert(`Welcome, ${formData.name}!`);
+      console.log("User Details", formData);
     });
 
     // Add the form to the root
@@ -45,4 +42,4 @@ class LogIn {
   }
 }
 
-new LogIn();
+new SignUp();
