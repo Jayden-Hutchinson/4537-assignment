@@ -3,16 +3,7 @@ import { $root, HTML } from "./constants.js";
 
 class SignUp {
   constructor() {
-    // Create a form
     const form = $(HTML.ELEMENTS.FORM).attr({ id: HTML.IDS.SIGN_UP_FORM });
-
-    // Create input fields
-    const nameInput = $(HTML.ELEMENTS.INPUT).attr({
-      type: HTML.TYPES.TEXT,
-      name: HTML.NAMES.NAME,
-      placeholder: HTML.PLACEHOLDERS.NAME,
-      required: true,
-    });
 
     const emailInput = $(HTML.ELEMENTS.INPUT).attr({
       type: HTML.TYPES.EMAIL,
@@ -34,13 +25,12 @@ class SignUp {
       .text(UI.TEXT.SIGN_UP_BUTTON);
 
     // Append all inputs and button to form
-    form.append(nameInput, emailInput, passwordInput, signUpButton);
+    form.append(emailInput, passwordInput, signUpButton);
 
     // Handle submit
     form.on(HTML.EVENTS.SUBMIT, function (event) {
       event.preventDefault(); // prevent page reload
       const formData = {
-        name: nameInput.val(),
         email: emailInput.val(),
         password: passwordInput.val(),
       };

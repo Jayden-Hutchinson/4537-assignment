@@ -11,7 +11,6 @@ export const HTML = {
   },
 
   NAMES: {
-    NAME: "name",
     PASSWORD: "password",
     EMAIL: "email",
   },
@@ -34,7 +33,6 @@ export const HTML = {
   },
 
   PLACEHOLDERS: {
-    NAME: "Name",
     EMAIL: "Email",
     PASSWORD: "Password",
   },
