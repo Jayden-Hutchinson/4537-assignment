@@ -1,7 +1,10 @@
 from transformers import BlipProcessor, BlipForConditionalGeneration
 from PIL import Image
 import requests
-
+'''
+need to run this first to install dependencies:
+    pip install torch torchvision transformers pillow requests
+'''
 # Load the BLIP-base model
 processor = BlipProcessor.from_pretrained("Salesforce/blip-image-captioning-base")
 model = BlipForConditionalGeneration.from_pretrained("Salesforce/blip-image-captioning-base")
