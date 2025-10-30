@@ -29,15 +29,14 @@ class LogIn {
     form.append(emailInput, passwordInput, logInButton);
 
     // Handle submit
-    form.on(HTML.EVENTS.SUBMIT, function (e) {
-      e.preventDefault(); // prevent page reload
+    form.on(HTML.EVENTS.SUBMIT, (event) => {
+      event.preventDefault(); // prevent page reload
+
       const formData = {
-        name: nameInput.val(),
         email: emailInput.val(),
         password: passwordInput.val(),
       };
       console.log("Form submitted:", formData);
-      alert(`Welcome, ${formData.name}!`);
     });
 
     // Add the form to the root

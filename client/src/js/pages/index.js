@@ -21,7 +21,22 @@ class Index {
         WindowManager.signUpPage();
       });
 
-    $root.append(logInButton, signUpButton);
+    const imageForm = $(HTML.ELEMENTS.FORM);
+    const imageInput = $(HTML.ELEMENTS.INPUT).attr({ type: HTML.TYPES.FILE });
+    const submitButton = $(HTML.ELEMENTS.BUTTON)
+      .attr({
+        type: HTML.TYPES.SUBMIT,
+      })
+      .text(UI.TEXT.SUBMIT_BUTTON);
+
+    imageForm.append(imageInput, submitButton);
+    imageForm.on(HTML.EVENTS.SUBMIT, (event) => {
+      event.preventDefault();
+
+      const file = imageInput[0].files[0];
+      console.log(file);
+    });
+    $root.append(logInButton, signUpButton, imageForm);
   }
 }
 
