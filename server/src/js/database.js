@@ -1,5 +1,6 @@
-const mysql = require("mysql2");
+const mysql = require("mysql2/promise");
 const fs = require("fs");
+const bcrypt = require("bcrypt");
 
 const SQL_FILES = {
   CREATE_USERS_TABLE: "./src/sql/create_users_table.sql",
@@ -12,60 +13,44 @@ const ENCODING = {
 };
 
 class Database {
-  constructor(host, user, password, database) {
-    this.config = {
-      host: host,
-      user: user,
-      password: password,
-      database: database,
-    };
-
-    this.connection = mysql.createConnection(this.config);
-
-    this.connection.connect((err) => {
-      if (err) {
-        console.log("Error connecting to database", database.config, err);
-        return;
-      }
-      console.log("Successfully connected to database");
-    });
-
-    this.createUserTable();
+  constructor() {
+    this.connection = null; // connection will be initialized asynchronously
   }
 
-  createUserTable() {
+  // Async init method to create connection
+  async init(host, user, password, database) {
+    this.connection = await mysql.createConnection({
+      host,
+      user,
+      password,
+      database,
+    });
+    console.log("[database] Connected");
+
+    // create users table
+    await this.createUserTable();
+  }
+
+  async createUserTable() {
     const sql = fs.readFileSync(SQL_FILES.CREATE_USERS_TABLE, ENCODING.UTF8);
-    this.connection.execute(sql);
+    await this.connection.execute(sql);
+    console.log("[database] Users table created or already exists");
   }
 
-  insertUser(email, password, role = "user") {
+  async insertUser(email, password, role = "user") {
     const sql = fs.readFileSync(SQL_FILES.INSERT_INTO_USERS, ENCODING.UTF8);
-    this.connection.execute(sql, [email, password, role], (err) => {
-      if (err) {
-        console.log(err);
-        return;
-      }
-      console.log("User added to database");
-    });
+
+    // hash password before storing
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    await this.connection.execute(sql, [email, hashedPassword, role]);
+    console.log("User added to database");
   }
 
-  selectUserByEmail(email) {
+  async selectUserByEmail(email) {
     const sql = fs.readFileSync(SQL_FILES.SELECT_USER_BY_EMAIL, ENCODING.UTF8);
-    console.log(sql);
-    this.connection.execute(sql, [email], (err, results) => {
-      if (err) {
-        console.error("DB error during login:", err);
-        return;
-      }
-
-      if (!results || results.length === 0) {
-        return;
-      }
-
-      console.log(results);
-      const user = results[0];
-      return user;
-    });
+    const [results] = await this.connection.execute(sql, [email]);
+    return results[0]; // returns user object or undefined
   }
 }
 
