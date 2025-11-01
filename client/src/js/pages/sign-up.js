@@ -1,6 +1,13 @@
 import { UI } from "../../lang/en/user.js";
 import { $root, HTML } from "../constants.js";
 
+class FormData {
+  constructor(email, password) {
+    this.email = email;
+    this.password = password;
+  }
+}
+
 class SignUp {
   constructor() {
     const form = $(HTML.ELEMENTS.FORM).attr({ id: HTML.IDS.SIGN_UP_FORM });
@@ -30,11 +37,9 @@ class SignUp {
     // Handle submit
     form.on(HTML.EVENTS.SUBMIT, function (event) {
       event.preventDefault(); // prevent page reload
-      const formData = {
-        email: emailInput.val(),
-        password: passwordInput.val(),
-      };
-      console.log("User Details", formData);
+      const formData = new FormData(emailInput.val(), passwordInput.val());
+
+      console.log(formData);
     });
 
     // Add the form to the root
