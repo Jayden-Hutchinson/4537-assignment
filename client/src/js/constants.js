@@ -33,7 +33,7 @@ export const HTML = {
     TEXT: "text",
     EMAIL: "email",
     PASSWORD: "password",
-    FILE: "file"
+    FILE: "file",
   },
 
   PLACEHOLDERS: {
