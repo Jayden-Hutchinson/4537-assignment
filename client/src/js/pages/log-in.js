@@ -1,7 +1,7 @@
 import { UI } from "../../lang/en/user.js";
 import { $root, HTML } from "../constants.js";
 
-class Payload {
+class FormData {
   constructor(email, password) {
     this.email = email;
     this.password = password;
@@ -39,16 +39,17 @@ class LogIn {
     form.on(HTML.EVENTS.SUBMIT, async function (e) {
       e.preventDefault(); // prevent page reload
 
-      const payload = new Payload(emailInput.val(), passwordInput.val());
+      const formData = new FormData(emailInput.val(), passwordInput.val());
+      console.log(formData);
 
       const request = {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(formData),
       };
 
       try {
-        const resp = await fetch("/api/login", request);
+        const resp = await fetch("http://localhost:3000/api/login", request);
         const data = await resp.json();
 
         if (!resp.ok) {
@@ -70,7 +71,6 @@ class LogIn {
         }
       } catch (err) {
         console.error("Login error", err);
-        alert("An error occurred during login");
       }
     });
 

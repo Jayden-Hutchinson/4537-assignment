@@ -35,11 +35,22 @@ class SignUp {
     form.append(emailInput, passwordInput, signUpButton);
 
     // Handle submit
-    form.on(HTML.EVENTS.SUBMIT, function (event) {
+    form.on(HTML.EVENTS.SUBMIT, async (event) => {
       event.preventDefault(); // prevent page reload
-      const formData = new FormData(emailInput.val(), passwordInput.val());
 
+      const formData = new FormData(emailInput.val(), passwordInput.val());
       console.log(formData);
+
+      const request = {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      };
+
+      try {
+        const resp = await fetch("http://localhost:3000/api/signup", request);
+        const data = await resp.json();
+      } catch (err) {}
     });
 
     // Add the form to the root
