@@ -1,10 +1,11 @@
 require("dotenv/config");
 
 const Database = require("./src/js/database");
+const auth = require("./src/js/authentication");
+
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const app = express();
-const auth = require("./authentication");
 
 const env = process.env;
 
@@ -18,14 +19,6 @@ const database = new Database(
   env.DB_NAME,
   env.DB_PORT
 );
-
-database.connection.connect((err) => {
-  if (err) {
-    console.log("Error connecting to database", database.config, err);
-    return;
-  }
-  console.log("Successfully connected to database");
-});
 
 // Do not apply authentication globally — keep login public and protect routes explicitly.
 // The `auth` module exported a middleware function (authenticateToken).

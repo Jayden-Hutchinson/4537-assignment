@@ -18,7 +18,16 @@ class Database {
       password: password,
       database: database,
     };
+
     this.connection = mysql.createConnection(this.config);
+
+    this.connection.connect((err) => {
+      if (err) {
+        console.log("Error connecting to database", database.config, err);
+        return;
+      }
+      console.log("Successfully connected to database");
+    });
   }
 
   createUserTable() {
