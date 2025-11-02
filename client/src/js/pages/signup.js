@@ -1,5 +1,5 @@
 import { UI } from "../../lang/en/user.js";
-import { $root, HTML } from "../constants.js";
+import { $root, HTML, BASE_URL } from "../constants.js";
 import { WindowManager } from "../managers/windowManager.js";
 
 class FormData {
@@ -49,10 +49,9 @@ class SignUp {
       };
 
       try {
-        const response = await fetch(
-          "http://localhost:3000/api/signup",
-          request
-        );
+        const url = `${BASE_URL}/api/signup`;
+        console.log(url);
+        const response = await fetch(url, request);
         const data = await response.json();
         console.log(data);
 

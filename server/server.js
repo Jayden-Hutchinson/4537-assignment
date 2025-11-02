@@ -5,7 +5,7 @@ const auth = require("./src/js/authentication");
 
 const jwt = require("jsonwebtoken");
 const cors = require("cors");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 
 const express = require("express");
 
@@ -40,19 +40,20 @@ app.use(
 
 // Parse JSON bodies
 app.use(express.json());
-
 // PUBLIC ROUTES
-app.get("/", (req, res) => {
+
+const BASE_URL = "/COMP4537/assignment";
+app.get(`${BASE_URL}/`, (req, res) => {
   res.send("Logged In");
 });
 
-app.post("/api/signup", async (req, res) => {
+app.post(`${BASE_URL}/api/signup`, async (req, res) => {
   const { email, password } = req.body || {};
 
   const saltRounds = 10;
   const hashedPassword = await bcrypt.hash(password.trim(), saltRounds);
 
-  database.insertUser(email, hashedPassword);
+  await database.insertUser(email, hashedPassword);
 
   const payload = { email: email, role: "user" };
   const secret = process.env.ACCESS_TOKEN_SECRET;
@@ -62,7 +63,7 @@ app.post("/api/signup", async (req, res) => {
 });
 
 // Login route: checks credentials and returns a signed JWT
-app.post("/api/login", async (req, res) => {
+app.post(`${BASE_URL}/api/login`, async (req, res) => {
   const { email, password } = req.body || {};
 
   if (!email || !password) {
@@ -98,7 +99,7 @@ app.post("/api/login", async (req, res) => {
 });
 
 // Example protected route (use this pattern for routes that must be authenticated)
-app.get("/api/protected", auth, (req, res) => {
+app.get(`${BASE_URL}/api/protected`, auth, (req, res) => {
   // `auth` sets req.user when token is valid
   res.json({ message: "Protected data", user: req.user });
 });

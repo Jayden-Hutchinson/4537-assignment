@@ -1,6 +1,5 @@
 const mysql = require("mysql2/promise");
 const fs = require("fs");
-const bcrypt = require("bcrypt");
 
 const SQL_FILES = {
   CREATE_USERS_TABLE: "./src/sql/create_users_table.sql",

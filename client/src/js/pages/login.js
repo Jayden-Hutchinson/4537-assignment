@@ -1,5 +1,5 @@
 import { UI } from "../../lang/en/user.js";
-import { $root, HTML } from "../constants.js";
+import { $root, BASE_URL, HTML } from "../constants.js";
 import { WindowManager } from "../managers/windowManager.js";
 
 class FormData {
@@ -50,7 +50,7 @@ class LogIn {
       };
 
       try {
-        const resp = await fetch("http://localhost:3000/api/login", request);
+        const resp = await fetch(`${BASE_URL}/api/login`, request);
         const data = await resp.json();
 
         if (!resp.ok) {

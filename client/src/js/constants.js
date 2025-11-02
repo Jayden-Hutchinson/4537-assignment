@@ -1,5 +1,7 @@
 export const $root = $("#root");
 
+export const BASE_URL = "https://j-hutchinson.com/COMP4537/assignment";
+
 export const PAGES = {
   INDEX: "index.html",
   LOGIN: "login.html",
