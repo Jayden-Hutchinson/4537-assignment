@@ -1,5 +1,6 @@
 import { UI } from "../../lang/en/user.js";
 import { $root, HTML } from "../constants.js";
+import { WindowManager } from "../managers/windowManager.js";
 
 class FormData {
   constructor(email, password) {
@@ -30,7 +31,7 @@ class LogIn {
     // Create submit button
     const logInButton = $(HTML.ELEMENTS.BUTTON)
       .attr({ type: HTML.TYPES.SUBMIT })
-      .text(UI.TEXT.LOG_IN_BUTTON);
+      .text(UI.TEXT.LOGIN_BUTTON);
 
     // Append all inputs and button to form
     form.append(emailInput, passwordInput, logInButton);
@@ -63,11 +64,11 @@ class LogIn {
         if (token) {
           // store token for use on subsequent requests
           localStorage.setItem("accessToken", token);
-          alert("Login successful");
+          console.log("Login successful");
           // Optionally redirect or refresh the app state
-          window.location.href = "/";
+          WindowManager.indexPage();
         } else {
-          alert("Login succeeded but no token was returned");
+          console.log("Login succeeded but no token was returned");
         }
       } catch (err) {
         console.error("Login error", err);
