@@ -49,13 +49,16 @@ app.get("/", (req, res) => {
 app.post("/api/signup", async (req, res) => {
   const { email, password } = req.body || {};
 
-  console.log(email, password);
-
   const saltRounds = 10;
-  const hashedPassword = await bcrypt.hash(password, saltRounds);
-  console.log(hashedPassword);
+  const hashedPassword = await bcrypt.hash(password.trim(), saltRounds);
 
   database.insertUser(email, hashedPassword);
+
+  const payload = { email: email, role: "user" };
+  const secret = process.env.ACCESS_TOKEN_SECRET;
+  const token = jwt.sign(payload, secret, { expiresIn: "1h" });
+
+  return res.json({ accessToken: token });
 });
 
 // Login route: checks credentials and returns a signed JWT
@@ -68,15 +71,16 @@ app.post("/api/login", async (req, res) => {
 
   try {
     const user = await database.selectUserByEmail(email);
+    console.log(user);
 
     if (!user) {
       res.status(500).json({ error: "Error getting user from database" });
     }
 
-    // NOTE: This compares plaintext passwords. In production we MUST hash passwords
     const passwordMatch = await bcrypt.compare(password, user.password);
+
     if (!passwordMatch) {
-      return res.status(401).json({ error: "Invalid credentials" });
+      return res.status(401).json({ error: "Incorrect Password" });
     }
 
     console.log(`[server] ${user.email} Logged in`);

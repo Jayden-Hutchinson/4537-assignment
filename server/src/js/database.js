@@ -39,11 +39,7 @@ class Database {
 
   async insertUser(email, password, role = "user") {
     const sql = fs.readFileSync(SQL_FILES.INSERT_INTO_USERS, ENCODING.UTF8);
-
-    // hash password before storing
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    await this.connection.execute(sql, [email, hashedPassword, role]);
+    await this.connection.execute(sql, [email, password, role]);
     console.log("User added to database");
   }
 

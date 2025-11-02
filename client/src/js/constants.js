@@ -2,15 +2,13 @@ export const $root = $("#root");
 
 export const PAGES = {
   INDEX: "index.html",
-  LOG_IN: "login.html",
-  SIGN_UP: "signup.html",
-  USER: "user.html",
-  ADMIN: "admin.html",
+  LOGIN: "login.html",
+  SIGNUP: "signup.html",
 };
 
 export const HTML = {
   IDS: {
-    SIGN_UP_FORM: "sign-up-form",
+    SIGNUP_FORM: "sign-up-form",
   },
 
   NAMES: {

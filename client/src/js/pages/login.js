@@ -55,7 +55,7 @@ class LogIn {
 
         if (!resp.ok) {
           // show simple alert for errors (could be improved to render in DOM)
-          alert(data.error || "Login failed");
+          console.log(data.error || "Login failed");
           return;
         }
 

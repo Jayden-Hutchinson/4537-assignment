@@ -1,5 +1,6 @@
 import { UI } from "../../lang/en/user.js";
 import { $root, HTML } from "../constants.js";
+import { WindowManager } from "../managers/windowManager.js";
 
 class FormData {
   constructor(email, password) {
@@ -10,7 +11,7 @@ class FormData {
 
 class SignUp {
   constructor() {
-    const form = $(HTML.ELEMENTS.FORM).attr({ id: HTML.IDS.SIGN_UP_FORM });
+    const form = $(HTML.ELEMENTS.FORM).attr({ id: HTML.IDS.SIGNUP_FORM });
 
     const emailInput = $(HTML.ELEMENTS.INPUT).attr({
       type: HTML.TYPES.EMAIL,
@@ -29,7 +30,7 @@ class SignUp {
     // Create submit button
     const signUpButton = $(HTML.ELEMENTS.BUTTON)
       .attr({ type: HTML.TYPES.SUBMIT })
-      .text(UI.TEXT.SIGN_UP_BUTTON);
+      .text(UI.TEXT.SIGNUP_BUTTON);
 
     // Append all inputs and button to form
     form.append(emailInput, passwordInput, signUpButton);
@@ -48,9 +49,23 @@ class SignUp {
       };
 
       try {
-        const resp = await fetch("http://localhost:3000/api/signup", request);
-        const data = await resp.json();
-      } catch (err) {}
+        const response = await fetch(
+          "http://localhost:3000/api/signup",
+          request
+        );
+        const data = await response.json();
+        console.log(data);
+
+        if (response.ok) {
+          localStorage.setItem("accessToken", data.accessToken);
+          WindowManager.indexPage();
+        } else {
+          console.log(data.error || "Sign up failed");
+        }
+      } catch (err) {
+        console.log("Signup error:", err);
+        console.log("Server error");
+      }
     });
 
     // Add the form to the root

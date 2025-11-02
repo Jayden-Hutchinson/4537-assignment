@@ -6,10 +6,10 @@ export class WindowManager {
   }
 
   static signUpPage() {
-    window.location.href = PAGES.SIGN_UP;
+    window.location.href = PAGES.SIGNUP;
   }
 
   static logInPage() {
-    window.location.href = PAGES.LOG_IN;
+    window.location.href = PAGES.LOGIN;
   }
 }
