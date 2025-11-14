@@ -1,0 +1,18 @@
+STEPS TO GET IT TO WORK:
+
+1. run the local llm:
+cd C:\llama
+llama-server.exe -m models\mistral-7b-instruct-v0.2.Q4_K_M.gguf --threads 16 --port 11434
+
+2. Start the proxy.js on port 3000
+3. forward the proxy server using ngrok so its available anywhere
+4. Success (you can query using curl)
+
+ex using powershell:
+
+Invoke-WebRequest "https://your-tunnel.ngrok-free.dev/v1/chat/completions" `
+  -Method POST `
+  -Headers @{ "Content-Type" = "application/json" } `
+  -Body '{ "messages": [ { "role": "user", "content": "what is a dog" } ] }' |
+  Select-Object -ExpandProperty Content
+
