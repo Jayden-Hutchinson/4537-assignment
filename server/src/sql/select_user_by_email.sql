@@ -1,0 +1,1 @@
+SELECT id, email, password, role FROM users WHERE email = ? LIMIT 1

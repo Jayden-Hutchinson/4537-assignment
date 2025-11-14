@@ -1,0 +1,4 @@
+App 18504 output: stdin: is not a tty
+App 18504 output: [server] Running at http://localhost:3000
+App 18504 output: [database] Connected
+App 18504 output: [database] Users table created or already exists
