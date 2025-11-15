@@ -6,11 +6,17 @@ body {
   padding: 0;
   margin: 0;
   background-color: black;
+  background-color: rgba(0, 0, 0, 0.95);
+  position: relative;
 }
 
 button {
   width: 100px;
   height: 30px;
+  border-radius: 5px;
+  border: none;
+  background-color: white;
+  background-color: rgba(255, 255, 255, 0.4);
 }
 
 form {
@@ -18,7 +24,18 @@ form {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 20px;
+  width: 40%;
+  gap: 80px;
+
+  padding: 80px;
+  margin-bottom: 50px;
+
+  font-family: sans-serif;
+  font-size: 24px;
+
+  background-color: rgba(255, 255, 255, 0.1);
+  border: solid 2px rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
 }
 
 #root {
@@ -31,4 +48,10 @@ form {
 
   justify-content: center;
   align-items: center;
+}
+
+.logout-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
 }

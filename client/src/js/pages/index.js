@@ -1,65 +1,44 @@
-import { UI } from "../../lang/en/user.js";
+import { $root } from "../constants.js";
+import { ElementFactory } from "../factories/elementFactory.js";
 
-import { $root, HTML } from "../constants.js";
-
-import { WindowManager } from "../managers/windowManager.js";
+const PAYLOAD_INDEX = 1
 
 class Index {
   constructor() {
-    const logInButton = $(HTML.ELEMENTS.BUTTON)
-      .text(UI.TEXT.LOGIN_BUTTON)
-      .click(() => {
-        WindowManager.logInPage();
-      });
-
-    const signUpButton = $(HTML.ELEMENTS.BUTTON)
-      .text(UI.TEXT.SIGNUP_BUTTON)
-      .click(() => {
-        WindowManager.signUpPage();
-      });
-
-    const imageForm = $(HTML.ELEMENTS.FORM);
-    const imageInput = $(HTML.ELEMENTS.INPUT).attr({ type: HTML.TYPES.FILE });
-    const submitButton = $(HTML.ELEMENTS.BUTTON)
-      .attr({
-        type: HTML.TYPES.SUBMIT,
-      })
-      .text(UI.TEXT.SUBMIT_BUTTON);
-
-    imageForm.append(imageInput, submitButton);
-    imageForm.on(HTML.EVENTS.SUBMIT, (event) => {
-      event.preventDefault();
-
-      const file = imageInput[0].files[0];
-      console.log(file);
-    });
-
+    // For verifying logged in
     const token = localStorage.getItem("accessToken");
 
+    // if not logged in / authenticated render login and signup buttons
     if (!token) {
-      $root.append(logInButton, signUpButton);
+      $root.append(ElementFactory.loginButton(), ElementFactory.signupButton());
       return;
     }
 
-    console.log(token);
-
-    const payload = JSON.parse(atob(token.split(".")[1]));
-    console.log(payload);
+    // Successfully logged in 
+    const payload = this.parseTokenPayload(token)
     const role = payload.role;
+    switch (role) {
+      case "user":
+        $root.append(ElementFactory.imageForm())
+        break;
 
-    if (role === "admin") {
-      $root.html("Hello admin");
-    } else if (role === "user") {
-      $root.html("Hello user");
+      case "admin":
+        $root.html("Hello admin");
+        break;
     }
 
-    const logoutButton = $(HTML.ELEMENTS.BUTTON)
-      .text(UI.TEXT.LOGOUT_BUTTON)
-      .click(() => {
-        localStorage.removeItem("accessToken");
-        WindowManager.indexPage();
-      });
-    $root.append(logoutButton);
+    // Append a logout button regardless of role
+    $root.append(ElementFactory.logoutButton())
+  }
+
+
+  parseTokenPayload(token) {
+    // Get the header, payload, and signiature of the token
+    const token_parts = token.split(".")
+    // Decode the base 64 encoded string to a string
+    const decoded_payload = atob(token_parts[PAYLOAD_INDEX])
+    // Parse the string to json containing user info
+    return JSON.parse(decoded_payload);
   }
 }
 
