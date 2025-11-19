@@ -22,10 +22,12 @@ export const HTML = {
     BUTTON: "<button>",
     FORM: "<form>",
     INPUT: "<input>",
+    IMG: "<img>",
   },
 
   EVENTS: {
     SUBMIT: "submit",
+    CHANGE: "change",
   },
 
   TYPES: {
