@@ -34,7 +34,7 @@ export class ElementFactory {
     // Handle Submit
     imageForm.on(HTML.EVENTS.SUBMIT, async (event) => {
       event.preventDefault();
-      
+
       const file = imageInput[0].files[0];
       if (!file) {
         alert("Please select an image first");
@@ -47,39 +47,38 @@ export class ElementFactory {
       try {
         // Convert image to base64
         const reader = new FileReader();
-        reader.onload = async function(e) {
+        reader.onload = async function (e) {
           const base64Image = e.target.result;
-          
+
           // Get token from localStorage
           const token = localStorage.getItem("accessToken");
-          
+
           // Call API
-          const response = await fetch("http://127.0.0.1:5000/analyze-image", {
+          const response = await fetch("http://127.0.0.1:5000/analyze", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              "Authorization": `Bearer ${token}`
+              "Authorization": `Bearer ${token}`,
             },
             body: JSON.stringify({ image: base64Image })
           });
 
           const data = await response.json();
-          
+
           if (response.ok) {
             // Display the caption
             const caption = $(HTML.ELEMENTS.DIV)
               .addClass("caption-result")
               .html(`<h3>Caption:</h3><p>${data.caption}</p>`);
-            
+
             imageForm.append(caption);
             console.log("Caption:", data.caption);
           } else {
             alert("Error: " + (data.error || "Failed to analyze image"));
           }
         };
-        
+
         reader.readAsDataURL(file);
-        
       } catch (error) {
         console.error("Error:", error);
         alert("Failed to analyze image: " + error.message);
