@@ -16,3 +16,4 @@ Invoke-WebRequest "https://your-tunnel.ngrok-free.dev/v1/chat/completions" `
   -Body '{ "messages": [ { "role": "user", "content": "what is a dog" } ] }' |
   Select-Object -ExpandProperty Content
 
+Your Browser / App (proxy server atm)  → ngrok → Your Proxy (port 3000) → Local LLM (11434) → Response

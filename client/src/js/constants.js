@@ -23,6 +23,7 @@ export const HTML = {
     FORM: "<form>",
     INPUT: "<input>",
     IMG: "<img>",
+    DIV: "<div>",
   },
 
   EVENTS: {

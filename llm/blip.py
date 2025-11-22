@@ -1,21 +1,56 @@
 from transformers import BlipProcessor, BlipForConditionalGeneration
 from PIL import Image
-import requests
+from flask import Flask, request, jsonify
+import base64
+import io
+
 '''
 need to run this first to install dependencies:
-    pip install torch torchvision transformers pillow requests
+    pip install torch torchvision transformers pillow flask
 '''
+
+app = Flask(__name__)
+
 # Load the BLIP-base model
+print("Loading BLIP model...")
 processor = BlipProcessor.from_pretrained("Salesforce/blip-image-captioning-base")
 model = BlipForConditionalGeneration.from_pretrained("Salesforce/blip-image-captioning-base")
+print("BLIP model loaded successfully!")
 
-# Example: Load image from URL
-url = "https://images.unsplash.com/photo-1761735679475-9321c24f2794?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=870"
-img = Image.open(requests.get(url, stream=True).raw)
+@app.route('/analyze', methods=['POST'])
+def analyze_image():
+    try:
+        data = request.get_json()
+        
+        if not data or 'image' not in data:
+            return jsonify({'error': 'No image data provided'}), 400
+        
+        # Handle base64 image data
+        image_data = data['image']
+        
+        # Remove data URL prefix if present (e.g., "data:image/jpeg;base64,")
+        if 'base64,' in image_data:
+            image_data = image_data.split('base64,')[1]
+        
+        # Decode base64 to image
+        image_bytes = base64.b64decode(image_data)
+        img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+        
+        # Generate caption
+        inputs = processor(images=img, return_tensors="pt")
+        outputs = model.generate(**inputs)
+        caption = processor.decode(outputs[0], skip_special_tokens=True)
+        
+        print(f"Generated caption: {caption}")
+        
+        return jsonify({
+            'caption': caption,
+            'description': caption
+        })
+        
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        return jsonify({'error': str(e)}), 500
 
-# Preprocess and generate caption
-inputs = processor(images=img, return_tensors="pt")
-outputs = model.generate(**inputs)
-caption = processor.decode(outputs[0], skip_special_tokens=True)
-
-print("Caption:", caption)
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000, debug=True)
