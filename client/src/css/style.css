@@ -38,6 +38,12 @@ form {
   border-radius: 15px;
 }
 
+img {
+  width: 500px;
+  height: auto;
+  border-radius: 15px;
+}
+
 #root {
   display: flex;
   flex-direction: column;
