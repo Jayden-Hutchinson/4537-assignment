@@ -9,10 +9,13 @@ class FormData {
   }
 }
 
+const PAGE_TITLE = "Login";
+
 class LogIn {
   constructor() {
     // Create a form
     const form = $(HTML.ELEMENTS.FORM).attr("id", "sign-up-forum");
+    const pageTitle = $(HTML.ELEMENTS.H1).text(PAGE_TITLE);
 
     const emailInput = $(HTML.ELEMENTS.INPUT).attr({
       type: HTML.TYPES.EMAIL,
@@ -76,7 +79,7 @@ class LogIn {
     });
 
     // Add the form to the root
-    $root.append(form);
+    $root.append(pageTitle, form);
   }
 }
 
