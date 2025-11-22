@@ -60,9 +60,6 @@ export class ImageForm {
         return;
       }
 
-      // Disable button while processing
-      submitButton.prop("disabled", true).text("Analyzing...");
-
       try {
         // Convert image to base64
         const reader = new FileReader();
@@ -88,6 +85,7 @@ export class ImageForm {
             // Display the caption
             load_message.text(`Description: ${data.caption}`);
             console.log("Description:", data.caption);
+            submitButton.show();
           } else {
             alert("Error:" + (data.error || "Failed to analyze image"));
           }
@@ -98,7 +96,7 @@ export class ImageForm {
         console.error("Error:", error);
         alert("Failed to analyze image: " + error.message);
       } finally {
-        submitButton.prop("disabled", false).text(UI.TEXT.SUBMIT_BUTTON);
+        submitButton.hide();
       }
     });
 
