@@ -1,6 +1,7 @@
 import { UI } from "../../lang/en/user.js";
 import { HTML, PROXY_BASE } from "../constants.js";
 import { WindowManager } from "../managers/windowManager.js";
+
 export class ElementFactory {
   static imageForm() {
     const preview = $(HTML.ELEMENTS.IMG);
@@ -11,10 +12,11 @@ export class ElementFactory {
         type: HTML.TYPES.SUBMIT,
       })
       .text(UI.TEXT.SUBMIT_BUTTON);
+    const load_message = $(HTML.ELEMENTS.DIV);
 
     imageForm.html("Select an image to generate a caption");
 
-    imageForm.append(imageInput, preview, submitButton);
+    imageForm.append(imageInput, preview, load_message, submitButton);
 
     imageInput.on(HTML.EVENTS.CHANGE, (event) => {
       const file = imageInput[0].files[0];
@@ -58,20 +60,17 @@ export class ElementFactory {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              "Authorization": `Bearer ${token}`,
+              Authorization: `Bearer ${token}`,
             },
-            body: JSON.stringify({ image: base64Image })
+            body: JSON.stringify({ image: base64Image }),
           });
 
           const data = await response.json();
 
           if (response.ok) {
             // Display the caption
-            const caption = $(HTML.ELEMENTS.DIV)
-              .addClass("caption-result")
-              .html(`<h3>Caption:</h3><p>${data.caption}</p>`);
+            load_message.html(`<h3>Description:</h3><p>${data.caption}</p>`);
 
-            imageForm.append(caption);
             console.log("Caption:", data.caption);
           } else {
             alert("Error: " + (data.error || "Failed to analyze image"));

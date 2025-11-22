@@ -1,0 +1,104 @@
+import { UI } from "../../lang/en/user.js";
+import { HTML } from "../constants.js";
+
+export class ImageForm {
+  constructor() {
+    this.element = $(HTML.ELEMENTS.FORM);
+    const formTitle = $(HTML.ELEMENTS.H1);
+    const imageInput = $(HTML.ELEMENTS.INPUT);
+    const imagePreview = $(HTML.ELEMENTS.IMG);
+    const load_message = $(HTML.ELEMENTS.DIV);
+    const submitButton = $(HTML.ELEMENTS.BUTTON);
+
+    // FORM TITLE
+    formTitle.text("Upload an image to generate a caption");
+
+    // IMAGE INPUT
+    imageInput.attr({ type: HTML.TYPES.FILE });
+
+    // When image is uploaded display the image
+    imageInput.on(HTML.EVENTS.CHANGE, (event) => {
+      const file = imageInput[0].files[0];
+      if (!file) {
+        console.log("no file");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        imagePreview.attr("src", event.target.result);
+        imagePreview.show();
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // SUBMIT BUTTON
+    submitButton
+      .attr({
+        type: HTML.TYPES.SUBMIT,
+      })
+      .text(UI.TEXT.SUBMIT_BUTTON);
+
+    this.element.append(
+      formTitle,
+      imageInput,
+      imagePreview,
+      load_message,
+      submitButton
+    );
+
+    // Handle Form Submit
+    this.element.on(HTML.EVENTS.SUBMIT, async (event) => {
+      event.preventDefault();
+
+      const file = imageInput[0].files[0];
+      console.log("Form submitted with file:", file);
+
+      if (!file) {
+        alert("Please select an image first");
+        return;
+      }
+
+      // Disable button while processing
+      submitButton.prop("disabled", true).text("Analyzing...");
+
+      try {
+        // Convert image to base64
+        const reader = new FileReader();
+        reader.onload = async function (e) {
+          const base64Image = e.target.result;
+
+          // Get token from localStorage
+          const token = localStorage.getItem("accessToken");
+
+          // Call API
+          load_message.html("Analyizing Image");
+          const response = await fetch("http://127.0.0.1:5000/analyze", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ image: base64Image }),
+          });
+
+          const data = await response.json();
+          if (response.ok) {
+            // Display the caption
+            load_message.text(`Description: ${data.caption}`);
+            console.log("Description:", data.caption);
+          } else {
+            alert("Error:" + (data.error || "Failed to analyze image"));
+          }
+        };
+
+        reader.readAsDataURL(file);
+      } catch (error) {
+        console.error("Error:", error);
+        alert("Failed to analyze image: " + error.message);
+      } finally {
+        submitButton.prop("disabled", false).text(UI.TEXT.SUBMIT_BUTTON);
+      }
+    });
+  }
+}

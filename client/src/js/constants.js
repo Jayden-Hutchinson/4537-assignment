@@ -27,6 +27,7 @@ export const HTML = {
     INPUT: "<input>",
     IMG: "<img>",
     DIV: "<div>",
+    H1: "<h1>"
   },
 
   EVENTS: {
