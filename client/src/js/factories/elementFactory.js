@@ -1,5 +1,7 @@
 import { UI } from "../../lang/en/user.js";
 import { HTML } from "../constants.js";
+import { WindowManager } from "../managers/windowManager.js";
+
 export class ElementFactory {
   static imageForm() {
     const preview = $(HTML.ELEMENTS.IMG);

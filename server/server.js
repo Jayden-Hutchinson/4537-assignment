@@ -44,7 +44,7 @@ app.use(express.json());
 
 const BASE_URL = "/COMP4537/assignment";
 app.get(`${BASE_URL}/`, (req, res) => {
-  res.send("Logged In");
+  res.send("Server Running...");
 });
 
 app.post(`${BASE_URL}/api/signup`, async (req, res) => {
