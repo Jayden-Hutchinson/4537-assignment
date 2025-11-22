@@ -2,6 +2,7 @@ import { $root } from "../constants.js";
 import { ImageForm } from "../components/imageForm.js";
 import { HTML } from "../constants.js";
 import { UI } from "../../lang/en/user.js";
+import { WindowManager } from "../managers/windowManager.js";
 
 const PAYLOAD_INDEX = 1;
 

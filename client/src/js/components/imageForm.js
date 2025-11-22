@@ -26,8 +26,16 @@ export class ImageForm {
 
       const reader = new FileReader();
       reader.onload = function (event) {
-        imagePreview.attr("src", event.target.result);
-        imagePreview.show();
+        if (isValidFile(file)) {
+          console.log("File Uploaded.");
+          load_message.empty();
+          imagePreview.attr("src", event.target.result);
+          imagePreview.show();
+          submitButton.show();
+        } else {
+          console.log("File must be jpeg or png!");
+          load_message.text("File must be jpeg or png!");
+        }
       };
       reader.readAsDataURL(file);
     });
@@ -37,15 +45,8 @@ export class ImageForm {
       .attr({
         type: HTML.TYPES.SUBMIT,
       })
-      .text(UI.TEXT.SUBMIT_BUTTON);
-
-    this.element.append(
-      formTitle,
-      imageInput,
-      imagePreview,
-      load_message,
-      submitButton
-    );
+      .text(UI.TEXT.SUBMIT_BUTTON)
+      .hide();
 
     // Handle Form Submit
     this.element.on(HTML.EVENTS.SUBMIT, async (event) => {
@@ -100,5 +101,17 @@ export class ImageForm {
         submitButton.prop("disabled", false).text(UI.TEXT.SUBMIT_BUTTON);
       }
     });
+
+    this.element.append(
+      formTitle,
+      imageInput,
+      imagePreview,
+      load_message,
+      submitButton
+    );
   }
+}
+
+function isValidFile(file) {
+  return file.type == "image/jpeg" || file.type == "image/png";
 }
