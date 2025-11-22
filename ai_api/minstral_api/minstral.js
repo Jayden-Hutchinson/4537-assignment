@@ -8,13 +8,15 @@ app.use(express.json());
 
 const LLM_HOST = "localhost";
 const LLM_PORT = 11434;
-const ANALYZE_HOST = "127.0.0.1"
+const ANALYZE_HOST = "127.0.0.1";
 const ANALYZE_PORT = 5000;
 
 app.post("/v1/chat/completions", (req, res) => {
   const data = JSON.stringify({
-    prompt: req.body.messages.map(m => `${m.role}: ${m.content}`).join("\n") + "\nassistant:",
-    n_predict: 100
+    prompt:
+      req.body.messages.map((m) => `${m.role}: ${m.content}`).join("\n") +
+      "\nassistant:",
+    n_predict: 100,
   });
 
   const options = {
@@ -24,26 +26,24 @@ app.post("/v1/chat/completions", (req, res) => {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Content-Length": data.length
-    }
+      "Content-Length": data.length,
+    },
   };
 
-  const request = http.request(options, response => {
+  const request = http.request(options, (response) => {
     let body = "";
-    response.on("data", chunk => body += chunk);
+    response.on("data", (chunk) => (body += chunk));
     response.on("end", () => {
       try {
         const json = JSON.parse(body);
         res.json({ content: json.content });
         console.log("Response from LLM:", json.content);
-
       } catch (e) {
         res.status(500).json({ error: e.message, body });
       }
     });
-
   });
-  request.on("error", err => res.status(500).json({ error: err.message }));
+  request.on("error", (err) => res.status(500).json({ error: err.message }));
   request.write(data);
   request.end();
 });
@@ -60,7 +60,9 @@ app.post("/analyze", (req, res) => {
     headers: {
       "Content-Type": "application/json",
       "Content-Length": Buffer.byteLength(payload),
-      ...(req.headers.authorization ? { Authorization: req.headers.authorization } : {}),
+      ...(req.headers.authorization
+        ? { Authorization: req.headers.authorization }
+        : {}),
     },
   };
 
@@ -76,7 +78,8 @@ app.post("/analyze", (req, res) => {
           try {
             const { URL } = require("url");
             const target = new URL(process.env.EXTERNAL_CAPTION_URL);
-            const proto = target.protocol === "https:" ? require("https") : http;
+            const proto =
+              target.protocol === "https:" ? require("https") : http;
             const fOptions = {
               hostname: target.hostname,
               port: target.port || (target.protocol === "https:" ? 443 : 80),
@@ -87,9 +90,13 @@ app.post("/analyze", (req, res) => {
             const fReq = proto.request(fOptions, (fRes) => {
               let fBody = "";
               fRes.on("data", (c) => (fBody += c));
-              fRes.on("end", () => console.log("Forwarded caption response:", fBody));
+              fRes.on("end", () =>
+                console.log("Forwarded caption response:", fBody)
+              );
             });
-            fReq.on("error", (e) => console.error("Caption forward failed:", e.message));
+            fReq.on("error", (e) =>
+              console.error("Caption forward failed:", e.message)
+            );
             fReq.write(JSON.stringify({ caption: json.caption }));
             fReq.end();
           } catch (e) {
