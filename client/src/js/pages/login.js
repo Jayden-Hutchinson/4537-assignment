@@ -43,6 +43,7 @@ class LogIn {
     form.on(HTML.EVENTS.SUBMIT, async function (e) {
       e.preventDefault(); // prevent page reload
 
+      form.text("Redirecting...");
       const formData = new FormData(emailInput.val(), passwordInput.val());
       console.log(formData);
 
