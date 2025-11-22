@@ -6,8 +6,9 @@ const auth = require("./src/js/authentication");
 const jwt = require("jsonwebtoken");
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
-
+const http = require("http")
 const express = require("express");
+const { hostname } = require("os");
 
 const app = express();
 
@@ -102,6 +103,53 @@ app.post(`${BASE_URL}/api/login`, async (req, res) => {
 app.get(`${BASE_URL}/api/protected`, auth, (req, res) => {
   // `auth` sets req.user when token is valid
   res.json({ message: "Protected data", user: req.user });
+});
+
+app.post(`${BASE_URL}/api/analyze-image`, auth, async (req, res) => {
+  const { image } = req.body || {}
+
+  if (!image) {
+    return res.status(400).json({ error: "Image data required " });
+  }
+
+  try {
+    const data = JSON.stringify({ image });
+
+    const options = {
+      hostname: "localhost",
+      port: 5000,
+      path: "/analyze",
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Content-Length": data.length
+      }
+    };
+
+    const request = http.request(options, response => {
+      let body = "";
+      response.on("data", chunk => body += chunk);
+      response.on("end", () => {
+        try {
+          const json = JSON.parse(body);
+          res.json({ caption: json.caption, description: json.description });
+        } catch (e) {
+          res.status(500).json({ error: "Failed to parse BLIP response", details: e.message });
+        }
+      });
+    });
+
+    request.on("error", err => {
+      res.status(500).json({ error: "BLIP service unavailable", details: err.message });
+    });
+
+    request.write(data);
+    request.end();
+
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Server error" });
+  }
 });
 
 app.listen(PORT, () => {
