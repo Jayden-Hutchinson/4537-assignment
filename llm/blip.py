@@ -1,6 +1,7 @@
 from transformers import BlipProcessor, BlipForConditionalGeneration
 from PIL import Image
 from flask import Flask, request, jsonify
+from flask_cors import CORS # Import CORS
 import base64
 import io
 
@@ -10,7 +11,7 @@ need to run this first to install dependencies:
 '''
 
 app = Flask(__name__)
-
+CORS(app)
 # Load the BLIP-base model
 print("Loading BLIP model...")
 processor = BlipProcessor.from_pretrained("Salesforce/blip-image-captioning-base")

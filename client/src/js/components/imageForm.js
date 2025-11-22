@@ -1,23 +1,22 @@
 import { UI } from "../../lang/en/user.js";
 import { HTML } from "../constants.js";
-import { WindowManager } from "../managers/windowManager.js";
 
-export class ElementFactory {
-  static imageForm() {
-    const preview = $(HTML.ELEMENTS.IMG);
-    const imageForm = $(HTML.ELEMENTS.FORM);
-    const imageInput = $(HTML.ELEMENTS.INPUT).attr({ type: HTML.TYPES.FILE });
-    const submitButton = $(HTML.ELEMENTS.BUTTON)
-      .attr({
-        type: HTML.TYPES.SUBMIT,
-      })
-      .text(UI.TEXT.SUBMIT_BUTTON);
+export class ImageForm {
+  constructor() {
+    this.element = $(HTML.ELEMENTS.FORM);
+    const formTitle = $(HTML.ELEMENTS.H1);
+    const imageInput = $(HTML.ELEMENTS.INPUT);
+    const imagePreview = $(HTML.ELEMENTS.IMG);
     const load_message = $(HTML.ELEMENTS.DIV);
+    const submitButton = $(HTML.ELEMENTS.BUTTON);
 
-    imageForm.html("Select an image to generate a caption");
+    // FORM TITLE
+    formTitle.text("Upload an image to generate a caption");
 
-    imageForm.append(imageInput, preview, load_message, submitButton);
+    // IMAGE INPUT
+    imageInput.attr({ type: HTML.TYPES.FILE });
 
+    // When image is uploaded display the image
     imageInput.on(HTML.EVENTS.CHANGE, (event) => {
       const file = imageInput[0].files[0];
       if (!file) {
@@ -27,17 +26,34 @@ export class ElementFactory {
 
       const reader = new FileReader();
       reader.onload = function (event) {
-        preview.attr("src", event.target.result);
-        preview.show();
+        imagePreview.attr("src", event.target.result);
+        imagePreview.show();
       };
       reader.readAsDataURL(file);
     });
 
-    // Handle Submit
-    imageForm.on(HTML.EVENTS.SUBMIT, async (event) => {
+    // SUBMIT BUTTON
+    submitButton
+      .attr({
+        type: HTML.TYPES.SUBMIT,
+      })
+      .text(UI.TEXT.SUBMIT_BUTTON);
+
+    this.element.append(
+      formTitle,
+      imageInput,
+      imagePreview,
+      load_message,
+      submitButton
+    );
+
+    // Handle Form Submit
+    this.element.on(HTML.EVENTS.SUBMIT, async (event) => {
       event.preventDefault();
 
       const file = imageInput[0].files[0];
+      console.log("Form submitted with file:", file);
+
       if (!file) {
         alert("Please select an image first");
         return;
@@ -56,6 +72,7 @@ export class ElementFactory {
           const token = localStorage.getItem("accessToken");
 
           // Call API
+          load_message.html("Analyizing Image");
           const response = await fetch("http://127.0.0.1:5000/analyze", {
             method: "POST",
             headers: {
@@ -66,14 +83,12 @@ export class ElementFactory {
           });
 
           const data = await response.json();
-
           if (response.ok) {
             // Display the caption
-            load_message.html(`<h3>Description:</h3><p>${data.caption}</p>`);
-
-            console.log("Caption:", data.caption);
+            load_message.text(`Description: ${data.caption}`);
+            console.log("Description:", data.caption);
           } else {
-            alert("Error: " + (data.error || "Failed to analyze image"));
+            alert("Error:" + (data.error || "Failed to analyze image"));
           }
         };
 
@@ -85,33 +100,5 @@ export class ElementFactory {
         submitButton.prop("disabled", false).text(UI.TEXT.SUBMIT_BUTTON);
       }
     });
-
-    return imageForm;
-  }
-
-  static logoutButton() {
-    return $(HTML.ELEMENTS.BUTTON)
-      .addClass("logout-button")
-      .text(UI.TEXT.LOGOUT_BUTTON)
-      .click(() => {
-        localStorage.removeItem("accessToken");
-        WindowManager.indexPage();
-      });
-  }
-
-  static signupButton() {
-    return $(HTML.ELEMENTS.BUTTON)
-      .text(UI.TEXT.SIGNUP_BUTTON)
-      .click(() => {
-        WindowManager.signUpPage();
-      });
-  }
-
-  static loginButton() {
-    return $(HTML.ELEMENTS.BUTTON)
-      .text(UI.TEXT.LOGIN_BUTTON)
-      .click(() => {
-        WindowManager.logInPage();
-      });
   }
 }

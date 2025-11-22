@@ -1,7 +1,8 @@
 import { $root } from "../constants.js";
 import { ElementFactory } from "../factories/elementFactory.js";
+import { ImageForm } from "../components/imageForm.js";
 
-const PAYLOAD_INDEX = 1
+const PAYLOAD_INDEX = 1;
 
 class Index {
   constructor() {
@@ -14,12 +15,13 @@ class Index {
       return;
     }
 
-    // Successfully logged in 
-    const payload = this.parseTokenPayload(token)
+    // Successfully logged in
+    const payload = this.parseTokenPayload(token);
     const role = payload.role;
     switch (role) {
       case "user":
-        $root.append(ElementFactory.imageForm())
+        const imageForm = new ImageForm();
+        $root.append(imageForm.element);
         break;
 
       case "admin":
@@ -28,15 +30,14 @@ class Index {
     }
 
     // Append a logout button regardless of role
-    $root.append(ElementFactory.logoutButton())
+    $root.append(ElementFactory.logoutButton());
   }
-
 
   parseTokenPayload(token) {
     // Get the header, payload, and signiature of the token
-    const token_parts = token.split(".")
+    const token_parts = token.split(".");
     // Decode the base 64 encoded string to a string
-    const decoded_payload = atob(token_parts[PAYLOAD_INDEX])
+    const decoded_payload = atob(token_parts[PAYLOAD_INDEX]);
     // Parse the string to json containing user info
     return JSON.parse(decoded_payload);
   }
