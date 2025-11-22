@@ -4,7 +4,7 @@ import { HTML } from "../constants.js";
 export class ImageForm {
   constructor() {
     this.element = $(HTML.ELEMENTS.FORM);
-    const formTitle = $(HTML.ELEMENTS.H1);
+    const formTitle = $(HTML.ELEMENTS.H2);
     const imageInput = $(HTML.ELEMENTS.INPUT);
     const imagePreview = $(HTML.ELEMENTS.IMG);
     const load_message = $(HTML.ELEMENTS.DIV);

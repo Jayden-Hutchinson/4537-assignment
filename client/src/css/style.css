@@ -2,6 +2,12 @@
   color: white;
 }
 
+* {
+  font-family: sans-serif;
+  font-weight: lighter;
+  color: lightgrey;
+}
+
 body {
   padding: 0;
   margin: 0;
@@ -17,6 +23,9 @@ button {
   border: none;
   background-color: white;
   background-color: rgba(50, 150, 255, 1);
+  font-family: sans-serif;
+  font-weight: bold;
+  color: black;
 }
 
 button:hover {
@@ -33,12 +42,12 @@ form {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  width: 40%;
+  width: 30%;
   gap: 20px;
 
-  padding: 80px;
-
   font-family: sans-serif;
+
+  padding: 50px;
 
   background-color: rgba(255, 255, 255, 0.1);
   border: solid 2px rgba(255, 255, 255, 0.1);
@@ -46,7 +55,9 @@ form {
 }
 
 h1 {
-  font-size: 20px;
+  font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
+  font-weight: lighter;
+  font-size: 48px;
 }
 
 img {
@@ -63,7 +74,6 @@ img {
   width: 100vw;
   height: 100vh;
 
-  justify-content: center;
   align-items: center;
 }
 

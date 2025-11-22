@@ -5,12 +5,15 @@ import { UI } from "../../lang/en/user.js";
 import { WindowManager } from "../managers/windowManager.js";
 
 const PAYLOAD_INDEX = 1;
+const PAGE_TITLE = "Caption Generator";
 
 class Index {
   constructor() {
     // For verifying logged in
     const token = localStorage.getItem("accessToken");
+    const pageTitle = $(HTML.ELEMENTS.H1).text(PAGE_TITLE);
 
+    $root.append(pageTitle);
     // if not logged in / authenticated render login and signup buttons
     if (!token) {
       const loginButton = $(HTML.ELEMENTS.BUTTON)
