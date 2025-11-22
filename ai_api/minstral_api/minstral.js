@@ -8,7 +8,7 @@ app.use(express.json());
 
 const LLM_HOST = "localhost";
 const LLM_PORT = 11434;
-const ANALYZE_HOST = "127.0.0.1";
+const ANALYZE_HOST = "127.0.0.1"
 const ANALYZE_PORT = 5000;
 
 app.post("/v1/chat/completions", (req, res) => {
