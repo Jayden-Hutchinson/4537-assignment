@@ -1,5 +1,5 @@
 import { UI } from "../../lang/en/user.js";
-import { HTML } from "../constants.js";
+import { HTML, PROXY_BASE } from "../constants.js";
 
 export class ImageForm {
   constructor() {
@@ -71,14 +71,15 @@ export class ImageForm {
           // Get token from localStorage
           const token = localStorage.getItem("accessToken");
 
-          // Call API
-          load_message.html("Analyizing Image");
-          const response = await fetch("http://127.0.0.1:5000/analyze", {
+          // Build headers explicitly and include Authorization only if token exists
+          const headers = { "Content-Type": "application/json" };
+          if (token) headers.Authorization = `Bearer ${token}`;
+
+          // Call the proxy analyze endpoint (proxy will forward to local analyze service)
+          load_message.html("Analyzing Image");
+          const response = await fetch(`${PROXY_BASE}/analyze`, {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
+            headers,
             body: JSON.stringify({ image: base64Image }),
           });
 
