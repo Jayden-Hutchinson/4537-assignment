@@ -19,6 +19,7 @@ export class ImageForm {
     // When image is uploaded display the image
     imageInput.on(HTML.EVENTS.CHANGE, (event) => {
       imagePreview.hide();
+      submitButton.hide();
       const file = imageInput[0].files[0];
       if (!file) {
         console.log("no file");
