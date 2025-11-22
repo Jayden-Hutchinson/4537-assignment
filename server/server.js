@@ -6,7 +6,7 @@ const auth = require("./src/js/authentication");
 const jwt = require("jsonwebtoken");
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
-const http = require("http")
+const http = require("http");
 const express = require("express");
 const { hostname } = require("os");
 
@@ -106,7 +106,7 @@ app.get(`${BASE_URL}/api/protected`, auth, (req, res) => {
 });
 
 app.post(`${BASE_URL}/api/analyze-image`, auth, async (req, res) => {
-  const { image } = req.body || {}
+  const { image } = req.body || {};
 
   if (!image) {
     return res.status(400).json({ error: "Image data required " });
@@ -122,30 +122,36 @@ app.post(`${BASE_URL}/api/analyze-image`, auth, async (req, res) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Content-Length": data.length
-      }
+        "Content-Length": data.length,
+      },
     };
 
-    const request = http.request(options, response => {
+    const request = http.request(options, (response) => {
       let body = "";
-      response.on("data", chunk => body += chunk);
+      response.on("data", (chunk) => (body += chunk));
       response.on("end", () => {
         try {
           const json = JSON.parse(body);
           res.json({ caption: json.caption, description: json.description });
         } catch (e) {
-          res.status(500).json({ error: "Failed to parse BLIP response", details: e.message });
+          res
+            .status(500)
+            .json({
+              error: "Failed to parse BLIP response",
+              details: e.message,
+            });
         }
       });
     });
 
-    request.on("error", err => {
-      res.status(500).json({ error: "BLIP service unavailable", details: err.message });
+    request.on("error", (err) => {
+      res
+        .status(500)
+        .json({ error: "BLIP service unavailable", details: err.message });
     });
 
     request.write(data);
     request.end();
-
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: "Server error" });

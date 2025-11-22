@@ -11,10 +11,11 @@ export class ElementFactory {
         type: HTML.TYPES.SUBMIT,
       })
       .text(UI.TEXT.SUBMIT_BUTTON);
+    const load_message = $(HTML.ELEMENTS.DIV);
 
     imageForm.html("Select an image to generate a caption");
 
-    imageForm.append(imageInput, preview, submitButton);
+    imageForm.append(imageInput, preview, load_message, submitButton);
 
     imageInput.on(HTML.EVENTS.CHANGE, (event) => {
       const file = imageInput[0].files[0];
@@ -54,6 +55,7 @@ export class ElementFactory {
           const token = localStorage.getItem("accessToken");
 
           // Call API
+          load_message.html("Analyzing Image");
           const response = await fetch(
             "http://localhost:4537/COMP4537/assignment/api/analyze-image",
             {
@@ -73,6 +75,7 @@ export class ElementFactory {
             const caption = $(HTML.ELEMENTS.DIV)
               .addClass("caption-result")
               .html(`<h3>Caption:</h3><p>${data.caption}</p>`);
+            load_message.html(`<h3>Description:</h3><p>${data.caption}</p>`);
 
             imageForm.append(caption);
             console.log("Caption:", data.caption);

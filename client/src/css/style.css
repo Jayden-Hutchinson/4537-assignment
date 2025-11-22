@@ -16,7 +16,16 @@ button {
   border-radius: 5px;
   border: none;
   background-color: white;
-  background-color: rgba(255, 255, 255, 0.4);
+  background-color: rgba(50, 150, 255, 1);
+}
+
+button:hover {
+  cursor: pointer;
+  background-color: rgba(50, 150, 255, 0.9);
+}
+
+button:active {
+  background-color: rgba(50, 150, 255, 0.5);
 }
 
 form {
