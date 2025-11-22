@@ -54,7 +54,7 @@ export class ElementFactory {
           const token = localStorage.getItem("accessToken");
           
           // Call API
-          const response = await fetch("http://localhost:4537/COMP4537/assignment/api/analyze-image", {
+          const response = await fetch("http://127.0.0.1:5000/analyze-image", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
