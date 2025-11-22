@@ -1,5 +1,5 @@
 import { UI } from "../../lang/en/user.js";
-import { HTML } from "../constants.js";
+import { HTML, PROXY_BASE } from "../constants.js";
 import { WindowManager } from "../managers/windowManager.js";
 export class ElementFactory {
   static imageForm() {
@@ -53,8 +53,8 @@ export class ElementFactory {
           // Get token from localStorage
           const token = localStorage.getItem("accessToken");
 
-          // Call API
-          const response = await fetch("http://127.0.0.1:5000/analyze", {
+          // Call proxy analyze API (proxy will forward to local analyze service)
+          const response = await fetch(`${PROXY_BASE}/analyze`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",

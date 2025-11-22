@@ -2,6 +2,9 @@ export const $root = $("#root");
 
 export const BASE_URL = "https://j-hutchinson.com/COMP4537/assignment";
 
+// Where the optional proxy runs (default to local proxy port 3000)
+export const PROXY_BASE = "http://127.0.0.1:3000";
+
 export const PAGES = {
   INDEX: "index.html",
   LOGIN: "login.html",
