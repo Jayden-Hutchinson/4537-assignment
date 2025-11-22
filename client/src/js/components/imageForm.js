@@ -4,7 +4,7 @@ import { HTML } from "../constants.js";
 export class ImageForm {
   constructor() {
     this.element = $(HTML.ELEMENTS.FORM);
-    const formTitle = $(HTML.ELEMENTS.H1);
+    const formTitle = $(HTML.ELEMENTS.H2);
     const imageInput = $(HTML.ELEMENTS.INPUT);
     const imagePreview = $(HTML.ELEMENTS.IMG);
     const load_message = $(HTML.ELEMENTS.DIV);
@@ -18,6 +18,8 @@ export class ImageForm {
 
     // When image is uploaded display the image
     imageInput.on(HTML.EVENTS.CHANGE, (event) => {
+      imagePreview.hide();
+      submitButton.hide();
       const file = imageInput[0].files[0];
       if (!file) {
         console.log("no file");
@@ -26,8 +28,16 @@ export class ImageForm {
 
       const reader = new FileReader();
       reader.onload = function (event) {
-        imagePreview.attr("src", event.target.result);
-        imagePreview.show();
+        if (isValidFile(file)) {
+          console.log("File Uploaded.");
+          load_message.empty();
+          imagePreview.attr("src", event.target.result);
+          imagePreview.show();
+          submitButton.show();
+        } else {
+          console.log("File must be jpeg or png!");
+          load_message.text("File must be jpeg or png!");
+        }
       };
       reader.readAsDataURL(file);
     });
@@ -37,15 +47,8 @@ export class ImageForm {
       .attr({
         type: HTML.TYPES.SUBMIT,
       })
-      .text(UI.TEXT.SUBMIT_BUTTON);
-
-    this.element.append(
-      formTitle,
-      imageInput,
-      imagePreview,
-      load_message,
-      submitButton
-    );
+      .text(UI.TEXT.SUBMIT_BUTTON)
+      .hide();
 
     // Handle Form Submit
     this.element.on(HTML.EVENTS.SUBMIT, async (event) => {
@@ -58,9 +61,6 @@ export class ImageForm {
         alert("Please select an image first");
         return;
       }
-
-      // Disable button while processing
-      submitButton.prop("disabled", true).text("Analyzing...");
 
       try {
         // Convert image to base64
@@ -87,6 +87,7 @@ export class ImageForm {
             // Display the caption
             load_message.text(`Description: ${data.caption}`);
             console.log("Description:", data.caption);
+            submitButton.show();
           } else {
             alert("Error:" + (data.error || "Failed to analyze image"));
           }
@@ -97,8 +98,20 @@ export class ImageForm {
         console.error("Error:", error);
         alert("Failed to analyze image: " + error.message);
       } finally {
-        submitButton.prop("disabled", false).text(UI.TEXT.SUBMIT_BUTTON);
+        submitButton.hide();
       }
     });
+
+    this.element.append(
+      formTitle,
+      imageInput,
+      imagePreview,
+      load_message,
+      submitButton
+    );
   }
+}
+
+function isValidFile(file) {
+  return file.type == "image/jpeg" || file.type == "image/png";
 }

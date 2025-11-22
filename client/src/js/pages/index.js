@@ -1,17 +1,32 @@
 import { $root } from "../constants.js";
-import { ElementFactory } from "../factories/elementFactory.js";
 import { ImageForm } from "../components/imageForm.js";
+import { HTML } from "../constants.js";
+import { UI } from "../../lang/en/user.js";
+import { WindowManager } from "../managers/windowManager.js";
 
 const PAYLOAD_INDEX = 1;
+const PAGE_TITLE = "Caption Generator";
 
 class Index {
   constructor() {
     // For verifying logged in
     const token = localStorage.getItem("accessToken");
+    const pageTitle = $(HTML.ELEMENTS.H1).text(PAGE_TITLE);
 
+    $root.append(pageTitle);
     // if not logged in / authenticated render login and signup buttons
     if (!token) {
-      $root.append(ElementFactory.loginButton(), ElementFactory.signupButton());
+      const loginButton = $(HTML.ELEMENTS.BUTTON)
+        .text(UI.TEXT.LOGIN_BUTTON)
+        .click(() => {
+          WindowManager.logInPage();
+        });
+      const signupButton = $(HTML.ELEMENTS.BUTTON)
+        .text(UI.TEXT.SIGNUP_BUTTON)
+        .click(() => {
+          WindowManager.signUpPage();
+        });
+      $root.append(loginButton, signupButton);
       return;
     }
 
@@ -30,7 +45,14 @@ class Index {
     }
 
     // Append a logout button regardless of role
-    $root.append(ElementFactory.logoutButton());
+    const logoutButton = $(HTML.ELEMENTS.BUTTON)
+      .addClass("logout-button")
+      .text(UI.TEXT.LOGOUT_BUTTON)
+      .click(() => {
+        localStorage.removeItem("accessToken");
+        WindowManager.indexPage();
+      });
+    $root.append(logoutButton);
   }
 
   parseTokenPayload(token) {
