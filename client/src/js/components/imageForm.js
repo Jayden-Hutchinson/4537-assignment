@@ -86,8 +86,19 @@ export class ImageForm {
           if (response.ok) {
             // Display the caption
             const data = await response.json();
-            load_message.text(`Description: ${data.caption}`);
+            console.log("Analysis Data:", data);
+            let message = `Description: ${data.caption}`;
+            if (data.enhanced_description) {
+              message += `<br><br>Funny caption: ${data.enhanced_description}`;
+            }
+            else {
+              message += `<br><br>No funny caption generated.`;
+            }
+            load_message.html(message);
             console.log("Description:", data.caption);
+            if (data.enhanced_description) {
+              console.log("Funny caption:", data.enhanced_description);
+            }
           } else {
             load_message.text(`Error analyzing image`);
             console.log(

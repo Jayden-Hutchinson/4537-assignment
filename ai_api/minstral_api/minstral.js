@@ -111,11 +111,15 @@ app.post("/analyze", (req, res) => {
                 } catch (e) {
                   console.error("Failed to parse Mistral response:", e.message);
                 }
+                // Send response after Mistral completes
+                res.json(json);
+              });
             });
+            fReq.on("error", (e) => {
+              console.error("Caption forward failed:", e.message);
+              // Send response even if Mistral fails
+              res.json(json);
             });
-            fReq.on("error", (e) =>
-              console.error("Caption forward failed:", e.message)
-            );
             const payload = JSON.stringify({ 
               prompt: `Make a funny caption for this image, one sentence 15 words max: ${json.caption}`,
               n_predict: 100
@@ -126,12 +130,13 @@ app.post("/analyze", (req, res) => {
           } 
           catch (e) {
             console.error("Failed to forward caption:", e.message);
+            res.json(json);
           }
         }
         else {
           console.log("No EXTERNAL_CAPTION_URL set or no caption to forward.");
+          res.json(json);
         }
-        res.json(json);
       } catch (e) {
         res.status(500).json({ error: e.message, body });
       }
