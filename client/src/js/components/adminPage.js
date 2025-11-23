@@ -1,4 +1,4 @@
-import { HTML } from "../constants";
+import { HTML } from "../constants.js";
 
 export class AdminPage {
   constructor() {

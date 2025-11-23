@@ -77,7 +77,7 @@ export class ImageForm {
 
           // Call the proxy analyze endpoint (proxy will forward to local analyze service)
           load_message.html("Analyzing Image");
-          const response = await fetch(`${PROXY_BASE}/api/blip/analyze`, {
+          const response = await fetch(`${PROXY_BASE}/analyze`, {
             method: "POST",
             headers,
             body: JSON.stringify({ image: base64Image }),

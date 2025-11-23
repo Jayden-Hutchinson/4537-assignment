@@ -58,7 +58,7 @@ app.post("/analyze", (req, res) => {
   const options = {
     hostname: ANALYZE_HOST,
     port: ANALYZE_PORT,
-    path: "/analyze",
+    path: "/api/blip/analyze",
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -144,4 +144,4 @@ app.post("/analyze", (req, res) => {
 });
 
 //make sure THIS PORT is forwarded to the ngrok port
-app.listen(3000, () => console.log("Proxy running on port 3000"));
+app.listen(3001, () => console.log("Proxy running on port 3001"));

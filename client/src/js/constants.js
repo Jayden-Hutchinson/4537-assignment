@@ -9,7 +9,7 @@ export const SERVER_BASE_URL =
   "http://localhost:3000/COMP4537/assignment/server";
 
 // Where the optional proxy runs
-export const PROXY_BASE = "http://127.0.0.1:5000";
+export const PROXY_BASE = "http://127.0.0.1:3001";
 
 export const PAGES = {
   INDEX: "index.html",

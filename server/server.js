@@ -110,6 +110,7 @@ app.post(`${BASE_URL}/login_user`, async (req, res) => {
     console.log(`[server] ${email} Logged in`);
     return res.json({ accessToken: token });
   } catch (err) {
+    console.log(err);
     return res.status(500).json({ error: "Server error" });
   }
 });
