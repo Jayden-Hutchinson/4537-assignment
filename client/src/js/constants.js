@@ -1,15 +1,15 @@
 export const $root = $("#root");
 
 // DEPLOYED URL FOR PRODUCTION
-// export const SERVER_BASE_URL =
-//   "https://j-hutchinson.com/COMP4537/assignment/server";
+export const SERVER_BASE_URL =
+  "https://j-hutchinson.com/COMP4537/assignment/server";
 
 // LOCAL URL FOR TESTING
-export const SERVER_BASE_URL =
-  "http://localhost:3000/COMP4537/assignment/server";
+// export const SERVER_BASE_URL =
+//   "http://localhost:3000/COMP4537/assignment/server";
 
 // Where the optional proxy runs
-export const PROXY_BASE = "http://127.0.0.1:3001";
+export const PROXY_BASE = "https://unharmable-melissa-gambogian.ngrok-free.dev";
 
 export const PAGES = {
   INDEX: "index.html",

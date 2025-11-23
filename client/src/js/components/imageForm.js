@@ -86,6 +86,7 @@ export class ImageForm {
           if (response.ok) {
             // Display the caption
             const data = await response.json();
+            console.log(data);
             load_message.text(`Description: ${data.caption}`);
             console.log("Description:", data.caption);
           } else {
