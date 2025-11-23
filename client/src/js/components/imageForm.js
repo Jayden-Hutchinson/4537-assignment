@@ -1,5 +1,5 @@
 import { UI } from "../../lang/en/user.js";
-import { HTML, PROXY_BASE } from "../constants.js";
+import { HTML, SERVER_BASE_URL } from "../constants.js";
 
 export class ImageForm {
   constructor() {
@@ -16,107 +16,113 @@ export class ImageForm {
     // IMAGE INPUT
     imageInput.attr({ type: HTML.TYPES.FILE });
 
-    // When image is uploaded display the image
+    // Preview when a file is selected
     imageInput.on(HTML.EVENTS.CHANGE, (event) => {
       imagePreview.hide();
       submitButton.hide();
       const file = imageInput[0].files[0];
-      if (!file) {
-        console.log("no file");
+      if (!file) return;
+
+      if (!isValidFile(file)) {
+        load_message.text("File must be JPEG or PNG!");
         return;
       }
 
       const reader = new FileReader();
-      reader.onload = function (event) {
-        if (isValidFile(file)) {
-          console.log("File Uploaded.");
-          load_message.empty();
-          imagePreview.attr("src", event.target.result);
-          imagePreview.show();
-          submitButton.show();
-        } else {
-          console.log("File must be jpeg or png!");
-          load_message.text("File must be jpeg or png!");
-        }
+      reader.onload = (e) => {
+        load_message.empty();
+        imagePreview.attr("src", e.target.result).show();
+        submitButton.show();
       };
       reader.readAsDataURL(file);
     });
 
     // SUBMIT BUTTON
     submitButton
-      .attr({
-        type: HTML.TYPES.SUBMIT,
-      })
+      .attr({ type: HTML.TYPES.SUBMIT })
       .text(UI.TEXT.SUBMIT_BUTTON)
       .hide();
 
-    // Handle Form Submit
+    // FORM SUBMIT HANDLER
     this.element.on(HTML.EVENTS.SUBMIT, async (event) => {
       event.preventDefault();
 
       const file = imageInput[0].files[0];
-      console.log("Image Form Submission", file);
-
       if (!file) {
         alert("Please select an image first");
         return;
       }
 
+      if (!isValidFile(file)) {
+        load_message.text("File must be JPEG or PNG!");
+        return;
+      }
+
+      // Reset UI
+      load_message.html("Analyzing Image...");
+      submitButton.hide();
+
       try {
         // Convert image to base64
-        const reader = new FileReader();
-        reader.onload = async function (e) {
-          const base64Image = e.target.result;
+        const base64Image = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
 
-          // Get token from localStorage
-          const token = localStorage.getItem("accessToken");
+        // Prepare headers (include token if present)
+        const token = localStorage.getItem("accessToken");
+        const headers = { "Content-Type": "application/json" };
+        if (token) headers.Authorization = `Bearer ${token}`;
 
-          // Build headers explicitly and include Authorization only if token exists
-          const headers = { "Content-Type": "application/json" };
-          if (token) headers.Authorization = `Bearer ${token}`;
+        // Send to your backend (note: using SERVER_BASE_URL from constants)
+        const response = await fetch(`${SERVER_BASE_URL}/api/blip/analyze-image`, {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ image: base64Image }),
+        });
 
-          // Call the proxy analyze endpoint (proxy will forward to local analyze service)
-          load_message.html("Analyzing Image");
-          const response = await fetch(`${PROXY_BASE}/analyze`, {
-            method: "POST",
-            headers,
-            body: JSON.stringify({ image: base64Image }),
-          });
+        const quotaHeader =
+          response.headers.get("x-quota-exceeded") ||
+          response.headers.get("X-Quota-Exceeded");
 
-          if (response.ok) {
-            // Display the caption
-            const data = await response.json();
-            console.log("Analysis Data:", data);
-            let message = `Description: ${data.caption}`;
-            if (data.enhanced_description) {
-              message += `<br><br>Funny caption: ${data.enhanced_description}`;
-            }
-            else {
-              message += `<br><br>No funny caption generated.`;
-            }
-            load_message.html(message);
-            console.log("Description:", data.caption);
-            if (data.enhanced_description) {
-              console.log("Funny caption:", data.enhanced_description);
-            }
+        if (response.ok) {
+          const data = await response.json();
+          let message = `Description: ${data.caption || data.description}`;
+
+          if (data.enhanced_description) {
+            message += `<br><br>Funny caption: ${data.enhanced_description}`;
           } else {
-            load_message.text(`Error analyzing image`);
-            console.log(
-              `Error analyzing image: ${response.status} ${response.statusText}`
-            );
+            message += `<br><br>No funny caption generated.`;
           }
-          submitButton.show();
-        };
 
-        reader.readAsDataURL(file);
+          load_message.html(message);
+
+          if (quotaHeader) {
+            const warn = $(HTML.ELEMENTS.DIV)
+              .addClass("quota-warning")
+              .text(
+                "You have reached your free API quota. Further requests may be limited."
+              );
+            load_message.after(warn);
+          }
+        } else {
+          // Non-200 response
+          const errorText = await response.text();
+          throw new Error(`Server error ${response.status}: ${errorText}`);
+        }
       } catch (error) {
-        console.error("Error:", error);
+        console.error("Image analysis failed:", error);
+        load_message.html("Error analyzing image");
         alert("Failed to analyze image: " + error.message);
       } finally {
-        submitButton.hide();
+        // Always re-enable the button after operation (optional)
+        submitButton.show();
       }
     });
 
+    // Append everything to the form
     this.element.append(
       formTitle,
       imageInput,
@@ -127,6 +133,7 @@ export class ImageForm {
   }
 }
 
+// Helper
 function isValidFile(file) {
-  return file.type == "image/jpeg" || file.type == "image/png";
+  return file.type === "image/jpeg" || file.type === "image/png";
 }
