@@ -1,6 +1,15 @@
 export const $root = $("#root");
 
-export const BASE_URL = "https://j-hutchinson.com/COMP4537/assignment";
+// DEPLOYED URL FOR PRODUCTION
+// export const SERVER_BASE_URL =
+//   "https://j-hutchinson.com/COMP4537/assignment/server";
+
+// LOCAL URL FOR TESTING
+export const SERVER_BASE_URL =
+  "http://localhost:3000/COMP4537/assignment/server";
+
+// Where the optional proxy runs
+export const PROXY_BASE = "http://127.0.0.1:3000";
 
 export const PAGES = {
   INDEX: "index.html",
@@ -22,10 +31,15 @@ export const HTML = {
     BUTTON: "<button>",
     FORM: "<form>",
     INPUT: "<input>",
+    IMG: "<img>",
+    DIV: "<div>",
+    H1: "<h1>",
+    H2: "<h2>",
   },
 
   EVENTS: {
     SUBMIT: "submit",
+    CHANGE: "change",
   },
 
   TYPES: {

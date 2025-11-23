@@ -1,65 +1,70 @@
-import { UI } from "../../lang/en/user.js";
-
 import { $root, HTML } from "../constants.js";
-
+import { UI } from "../../lang/en/user.js";
 import { WindowManager } from "../managers/windowManager.js";
+
+import { ImageForm } from "../components/imageForm.js";
+import { AdminPage } from "../components/adminPage.js";
+import { UserProfile } from "../components/userProfile.js";
+
+const PAYLOAD_INDEX = 1;
+const PAGE_TITLE = "Caption Generator";
 
 class Index {
   constructor() {
-    const logInButton = $(HTML.ELEMENTS.BUTTON)
-      .text(UI.TEXT.LOGIN_BUTTON)
-      .click(() => {
-        WindowManager.logInPage();
-      });
-
-    const signUpButton = $(HTML.ELEMENTS.BUTTON)
-      .text(UI.TEXT.SIGNUP_BUTTON)
-      .click(() => {
-        WindowManager.signUpPage();
-      });
-
-    const imageForm = $(HTML.ELEMENTS.FORM);
-    const imageInput = $(HTML.ELEMENTS.INPUT).attr({ type: HTML.TYPES.FILE });
-    const submitButton = $(HTML.ELEMENTS.BUTTON)
-      .attr({
-        type: HTML.TYPES.SUBMIT,
-      })
-      .text(UI.TEXT.SUBMIT_BUTTON);
-
-    imageForm.append(imageInput, submitButton);
-    imageForm.on(HTML.EVENTS.SUBMIT, (event) => {
-      event.preventDefault();
-
-      const file = imageInput[0].files[0];
-      console.log(file);
-    });
-
+    // For verifying logged in
     const token = localStorage.getItem("accessToken");
+    const pageTitle = $(HTML.ELEMENTS.H1).text(PAGE_TITLE);
 
+    $root.append(pageTitle);
     if (!token) {
-      $root.append(logInButton, signUpButton);
+      const loginButton = $(HTML.ELEMENTS.BUTTON)
+        .text(UI.TEXT.LOGIN_BUTTON)
+        .click(() => {
+          WindowManager.logInPage();
+        });
+      const signupButton = $(HTML.ELEMENTS.BUTTON)
+        .text(UI.TEXT.SIGNUP_BUTTON)
+        .click(() => {
+          WindowManager.signUpPage();
+        });
+
+      $root.append(loginButton, signupButton);
       return;
     }
 
-    console.log(token);
-
-    const payload = JSON.parse(atob(token.split(".")[1]));
-    console.log(payload);
+    // Successfully logged in
+    const payload = this.parseTokenPayload(token);
     const role = payload.role;
+    console.log(`Logged in as ${payload.email}`);
 
-    if (role === "admin") {
-      $root.html("Hello admin");
-    } else if (role === "user") {
-      $root.html("Hello user");
+    switch (role) {
+      case "user":
+        const imageForm = new ImageForm();
+        const profile = new UserProfile();
+        $root.append(profile.element);
+        $root.append(imageForm.element);
+        break;
+
+      case "admin":
+        const adminPage = new AdminPage();
+        $root.html(adminPage.element);
+        break;
     }
 
     const logoutButton = $(HTML.ELEMENTS.BUTTON)
+      .addClass("logout-button")
       .text(UI.TEXT.LOGOUT_BUTTON)
       .click(() => {
         localStorage.removeItem("accessToken");
         WindowManager.indexPage();
       });
     $root.append(logoutButton);
+  }
+
+  parseTokenPayload(token) {
+    const token_parts = token.split(".");
+    const decoded_payload = atob(token_parts[PAYLOAD_INDEX]);
+    return JSON.parse(decoded_payload);
   }
 }
 

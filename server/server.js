@@ -43,6 +43,41 @@ app.use(
 // Parse JSON bodies
 app.use(express.json());
 
+// Recording middleware: try to decode token (if present) to attribute requests to users
+app.use(async (req, res, next) => {
+  try {
+    // Only attribute and persist usage for authenticated users (token Bearer)
+    const authHeader = req.headers.authorization || "";
+    if (authHeader.startsWith("Bearer ")) {
+      const token = authHeader.split(" ")[1];
+      try {
+        const payload = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+        const email = payload.email || payload.id || null;
+        if (email) {
+          // persist usage event
+          try {
+            await database.insertUsage(email, req.method, req.path);
+            // Check total usage and signal quota exceeded when >= 20
+            const userUsage = await database.getUserUsage(email);
+            if (userUsage.total >= 20) {
+              res.setHeader("X-Quota-Exceeded", "true");
+              // also expose on locals for routes that wish to include it in JSON
+              res.locals.quotaExceeded = true;
+            }
+          } catch (e) {
+            console.error("Failed to persist usage:", e.message);
+          }
+        }
+      } catch (e) {
+        // token invalid — ignore attribution
+      }
+    }
+  } catch (e) {
+    console.error("Stats middleware error:", e.message);
+  }
+  next();
+});
+
 // PUBLIC ROUTES
 app.get(`${BASE_URL}/`, (req, res) => {
   res.send("Server Running...");
@@ -168,6 +203,45 @@ app.post(`${BASE_URL}/api/blip/analyze-image`, auth, async (req, res) => {
     request.end();
   } catch (err) {
     return res.status(500).json({ error: "Server error" });
+  }
+});
+
+// Admin stats endpoints
+// Return counts per endpoint
+app.get(`/api/admin/stats`, auth, async (req, res) => {
+  // only admin role allowed
+  if (!req.user || req.user.role !== "admin") return res.status(403).json({ error: "Forbidden" });
+
+  try {
+    const rows = await database.getEndpointStats();
+    // rows already have method, endpoint, requests
+    res.json(rows);
+  } catch (e) {
+    res.status(500).json({ error: "Failed to fetch endpoint stats" });
+  }
+});
+
+// Return per-user usage summary
+app.get(`/api/admin/user-usage`, auth, async (req, res) => {
+  if (!req.user || req.user.role !== "admin") return res.status(403).json({ error: "Forbidden" });
+  try {
+    const rows = await database.getUserUsageSummary();
+    const users = rows.map((r) => ({ username: (r.email || "").split("@")[0], email: r.email, totalRequests: r.totalRequests }));
+    res.json(users);
+  } catch (e) {
+    res.status(500).json({ error: "Failed to fetch user usage" });
+  }
+});
+
+// Return usage for the authenticated user
+app.get(`/api/user/usage`, auth, async (req, res) => {
+  const email = req.user && req.user.email ? req.user.email : null;
+  if (!email) return res.status(400).json({ error: "User email not found in token" });
+  try {
+    const data = await database.getUserUsage(email);
+    res.json(data);
+  } catch (e) {
+    res.status(500).json({ error: "Failed to fetch user usage" });
   }
 });
 
