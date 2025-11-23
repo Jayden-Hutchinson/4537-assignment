@@ -208,7 +208,7 @@ app.post(`${BASE_URL}/api/blip/analyze-image`, auth, async (req, res) => {
 
 // Admin stats endpoints
 // Return counts per endpoint
-app.get(`/api/admin/stats`, auth, async (req, res) => {
+app.get(`${BASE_URL}/api/admin/stats`, auth, async (req, res) => {
   // only admin role allowed
   if (!req.user || req.user.role !== "admin") return res.status(403).json({ error: "Forbidden" });
 
@@ -222,7 +222,7 @@ app.get(`/api/admin/stats`, auth, async (req, res) => {
 });
 
 // Return per-user usage summary
-app.get(`/api/admin/user-usage`, auth, async (req, res) => {
+app.get(`${BASE_URL}/api/admin/user-usage`, auth, async (req, res) => {
   if (!req.user || req.user.role !== "admin") return res.status(403).json({ error: "Forbidden" });
   try {
     const rows = await database.getUserUsageSummary();
@@ -234,7 +234,7 @@ app.get(`/api/admin/user-usage`, auth, async (req, res) => {
 });
 
 // Return usage for the authenticated user
-app.get(`/api/user/usage`, auth, async (req, res) => {
+app.get(`${BASE_URL}/api/user/usage`, auth, async (req, res) => {
   const email = req.user && req.user.email ? req.user.email : null;
   if (!email) return res.status(400).json({ error: "User email not found in token" });
   try {
