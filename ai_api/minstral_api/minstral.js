@@ -5,7 +5,7 @@ const cors = require("cors");
 
 const app = express();
 app.use(cors());
-app.use(express.json({ limit: "50mb" }));
+app.use(express.json({ limit: '50mb' }));
 
 const LLM_HOST = "localhost";
 const LLM_PORT = 11434;
@@ -84,16 +84,17 @@ app.post("/analyze", (req, res) => {
             console.log("Forwarding caption to:", EXTERNAL_CAPTION_URL);
             const { URL } = require("url");
             const target = new URL(EXTERNAL_CAPTION_URL);
-            const proto = target.protocol === "https:" ? https : http;
+            const proto =
+              target.protocol === "https:" ? https : http;
             console.log("Using protocol:", target.protocol);
             const fOptions = {
               hostname: target.hostname,
               port: target.port || (target.protocol === "https:" ? 443 : 80),
               path: target.pathname + (target.search || ""),
               method: "POST",
-              headers: {
+              headers: { 
                 "Content-Type": "application/json",
-                "ngrok-skip-browser-warning": "true",
+                "ngrok-skip-browser-warning": "true"
               },
             };
             console.log("Request options:", fOptions);
@@ -110,33 +111,27 @@ app.post("/analyze", (req, res) => {
                 } catch (e) {
                   console.error("Failed to parse Mistral response:", e.message);
                 }
-                // Send response after Mistral completes
-                res.json(json);
-              });
             });
-            fReq.on("error", (e) => {
-              console.error("Caption forward failed:", e.message);
-              // Send response even if Mistral fails
-              res.json(json);
             });
             fReq.on("error", (e) =>
               console.error("Caption forward failed:", e.message)
             );
             const payload = JSON.stringify({ 
               prompt: `Make a funny caption for this image, one sentence 15 words max: ${json.caption}`,
-              n_predict: 100,
+              n_predict: 100
             });
             console.log("Sending to Mistral:", payload);
             fReq.write(payload);
             fReq.end();
-          } catch (e) {
+          } 
+          catch (e) {
             console.error("Failed to forward caption:", e.message);
-            res.json(json);
           }
-        } else {
-          console.log("No EXTERNAL_CAPTION_URL set or no caption to forward.");
-          res.json(json);
         }
+        else {
+          console.log("No EXTERNAL_CAPTION_URL set or no caption to forward.");
+        }
+        res.json(json);
       } catch (e) {
         res.status(500).json({ error: e.message, body });
       }
@@ -147,6 +142,7 @@ app.post("/analyze", (req, res) => {
   request.write(payload);
   request.end();
 });
+
 
 //make sure THIS PORT is forwarded to the ngrok port
 app.listen(3001, () => console.log("Proxy running on port 3001"));

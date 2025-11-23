@@ -1,4 +1,3 @@
-import { HTML } from "../constants.js";
 import { HTML, PROXY_BASE } from "../constants.js";
 
 export class AdminPage {
