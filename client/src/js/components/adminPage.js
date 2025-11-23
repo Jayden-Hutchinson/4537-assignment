@@ -1,4 +1,4 @@
-import { HTML, PROXY_BASE, SERVER_BASE_URL } from "../constants.js";
+import { HTML, PROXY_BASE } from "../constants.js";
 
 export class AdminPage {
   constructor() {
@@ -12,13 +12,29 @@ export class AdminPage {
     const endpointsSection = $(HTML.ELEMENTS.DIV).addClass("admin-endpoints");
     endpointsSection.append($(HTML.ELEMENTS.H2).text("Endpoint Stats"));
     const endpointsTable = $("<table>").addClass("stats-table");
-    endpointsTable.append($("<thead>").append($("<tr>").append($("<th>").text("Method"), $("<th>").text("Endpoint"), $("<th>").text("Requests"))));
+    endpointsTable.append(
+      $("<thead>").append(
+        $("<tr>").append(
+          $("<th>").text("Method"),
+          $("<th>").text("Endpoint"),
+          $("<th>").text("Requests")
+        )
+      )
+    );
     endpointsTable.append($("<tbody>"));
 
     const usersSection = $(HTML.ELEMENTS.DIV).addClass("admin-users");
     usersSection.append($(HTML.ELEMENTS.H2).text("User Consumption"));
     const usersTable = $("<table>").addClass("users-table");
-    usersTable.append($("<thead>").append($("<tr>").append($("<th>").text("User name"), $("<th>").text("Email"), $("<th>").text("Total Requests"))));
+    usersTable.append(
+      $("<thead>").append(
+        $("<tr>").append(
+          $("<th>").text("User name"),
+          $("<th>").text("Email"),
+          $("<th>").text("Total Requests")
+        )
+      )
+    );
     usersTable.append($("<tbody>"));
 
     endpointsSection.append(endpointsTable);
@@ -31,7 +47,7 @@ export class AdminPage {
     let usersData = null;
 
     try {
-      const res = await fetch(`${SERVER_BASE_URL}/api/admin/stats`);
+      const res = await fetch("/api/admin/stats");
       if (res.ok) endpointsData = await res.json();
     } catch (e) {}
 
@@ -43,7 +59,7 @@ export class AdminPage {
     }
 
     try {
-      const res = await fetch(`${SERVER_BASE_URL}/api/admin/user-usage`);
+      const res = await fetch("/api/admin/user-usage");
       if (res.ok) usersData = await res.json();
     } catch (e) {}
 
@@ -72,13 +88,25 @@ export class AdminPage {
     // Render endpoints
     const etBody = endpointsTable.find("tbody");
     endpointsData.forEach((r) => {
-      etBody.append($("<tr>").append($("<td>").text(r.method), $("<td>").text(r.endpoint), $("<td>").text(r.requests)));
+      etBody.append(
+        $("<tr>").append(
+          $("<td>").text(r.method),
+          $("<td>").text(r.endpoint),
+          $("<td>").text(r.requests)
+        )
+      );
     });
 
     // Render users
     const uBody = usersTable.find("tbody");
     usersData.forEach((u) => {
-      uBody.append($("<tr>").append($("<td>").text(u.username), $("<td>").text(u.email), $("<td>").text(u.totalRequests)));
+      uBody.append(
+        $("<tr>").append(
+          $("<td>").text(u.username),
+          $("<td>").text(u.email),
+          $("<td>").text(u.totalRequests)
+        )
+      );
     });
   }
 }
