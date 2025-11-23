@@ -30,6 +30,7 @@ class Index {
         });
 
       $root.append(loginButton, signupButton);
+      return;
     }
 
     // Successfully logged in

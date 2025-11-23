@@ -1,4 +1,4 @@
-import { HTML, PROXY_BASE } from "../constants.js";
+import { HTML, PROXY_BASE, SERVER_BASE_URL } from "../constants.js";
 import { UI } from "../../lang/en/user.js";
 
 export class UserProfile {
@@ -15,11 +15,13 @@ export class UserProfile {
     const headers = { "Content-Type": "application/json" };
     if (token) headers.Authorization = `Bearer ${token}`;
 
+    // Primary: try configured server base URL
     try {
-      const res = await fetch(`/api/user/usage`, { method: "GET", headers });
+      const res = await fetch(`${SERVER_BASE_URL}/api/user/usage`, { method: "GET", headers });
       if (!res.ok) throw new Error(`Status ${res.status}`);
       const json = await res.json();
       this.render(json);
+      return;
     } catch (err) {
       // Fallback: try proxy or show message
       try {
