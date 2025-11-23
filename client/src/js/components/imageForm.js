@@ -55,7 +55,7 @@ export class ImageForm {
       event.preventDefault();
 
       const file = imageInput[0].files[0];
-      console.log("Form submitted with file:", file);
+      console.log("Image Form Submission", file);
 
       if (!file) {
         alert("Please select an image first");
@@ -77,21 +77,24 @@ export class ImageForm {
 
           // Call the proxy analyze endpoint (proxy will forward to local analyze service)
           load_message.html("Analyzing Image");
-          const response = await fetch(`${PROXY_BASE}/analyze`, {
+          const response = await fetch(`${PROXY_BASE}/api/blip/analyze`, {
             method: "POST",
             headers,
             body: JSON.stringify({ image: base64Image }),
           });
 
-          const data = await response.json();
           if (response.ok) {
             // Display the caption
+            const data = await response.json();
             load_message.text(`Description: ${data.caption}`);
             console.log("Description:", data.caption);
-            submitButton.show();
           } else {
-            alert("Error:" + (data.error || "Failed to analyze image"));
+            load_message.text(`Error analyzing image`);
+            console.log(
+              `Error analyzing image: ${response.status} ${response.statusText}`
+            );
           }
+          submitButton.show();
         };
 
         reader.readAsDataURL(file);

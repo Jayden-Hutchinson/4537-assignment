@@ -1,5 +1,5 @@
 import { UI } from "../../lang/en/user.js";
-import { $root, HTML, BASE_URL } from "../constants.js";
+import { $root, HTML, SERVER_BASE_URL } from "../constants.js";
 import { WindowManager } from "../managers/windowManager.js";
 
 class FormData {
@@ -9,9 +9,14 @@ class FormData {
   }
 }
 
+const PAGE_TITLE = "Sign Up";
+const SIGNUP_USER_URL = `${SERVER_BASE_URL}/signup_user`;
+
 class SignUp {
   constructor() {
     const form = $(HTML.ELEMENTS.FORM).attr({ id: HTML.IDS.SIGNUP_FORM });
+    const pageTitle = $(HTML.ELEMENTS.H1).text(PAGE_TITLE);
+    const err_message = $(HTML.ELEMENTS.DIV);
 
     const emailInput = $(HTML.ELEMENTS.INPUT).attr({
       type: HTML.TYPES.EMAIL,
@@ -33,14 +38,13 @@ class SignUp {
       .text(UI.TEXT.SIGNUP_BUTTON);
 
     // Append all inputs and button to form
-    form.append(emailInput, passwordInput, signUpButton);
+    form.append(emailInput, passwordInput, err_message, signUpButton);
 
     // Handle submit
     form.on(HTML.EVENTS.SUBMIT, async (event) => {
       event.preventDefault(); // prevent page reload
 
       const formData = new FormData(emailInput.val(), passwordInput.val());
-      console.log(formData);
 
       const request = {
         method: "POST",
@@ -48,27 +52,22 @@ class SignUp {
         body: JSON.stringify(formData),
       };
 
-      try {
-        const url = `${BASE_URL}/api/signup`;
-        console.log(url);
-        const response = await fetch(url, request);
-        const data = await response.json();
-        console.log(data);
+      const response = await fetch(SIGNUP_USER_URL, request);
+      const data = await response.json();
 
-        if (response.ok) {
-          localStorage.setItem("accessToken", data.accessToken);
-          WindowManager.indexPage();
-        } else {
-          console.log(data.error || "Sign up failed");
-        }
-      } catch (err) {
-        console.log("Signup error:", err);
-        console.log("Server error");
+      if (!response.ok) {
+        err_message.text(data.error);
+        console.log("Error:", data.error);
+        return;
       }
+
+      localStorage.setItem("accessToken", data.accessToken);
+      localStorage.setItem("request_limit", 20);
+      WindowManager.indexPage();
     });
 
     // Add the form to the root
-    $root.append(form);
+    $root.append(pageTitle, form);
   }
 }
 

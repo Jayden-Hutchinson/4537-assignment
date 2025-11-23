@@ -13,7 +13,8 @@ const { hostname } = require("os");
 const app = express();
 
 // Use provided PORT or fallback for local development
-const PORT = process.env.PORT || 4537;
+const PORT = process.env.PORT || 3000;
+const BASE_URL = "/COMP4537/assignment/server";
 
 const database = new Database();
 
@@ -41,31 +42,47 @@ app.use(
 
 // Parse JSON bodies
 app.use(express.json());
-// PUBLIC ROUTES
 
-const BASE_URL = "/COMP4537/assignment";
+// PUBLIC ROUTES
 app.get(`${BASE_URL}/`, (req, res) => {
   res.send("Server Running...");
 });
 
-app.post(`${BASE_URL}/api/signup`, async (req, res) => {
+app.post(`${BASE_URL}/signup_user`, async (req, res) => {
   const { email, password } = req.body || {};
 
   const saltRounds = 10;
   const hashedPassword = await bcrypt.hash(password.trim(), saltRounds);
 
-  await database.insertUser(email, hashedPassword);
+  try {
+    await database.insertUser(email, hashedPassword);
 
-  const payload = { email: email, role: "user" };
-  const secret = process.env.ACCESS_TOKEN_SECRET;
-  const token = jwt.sign(payload, secret, { expiresIn: "1h" });
+    const payload = { email: email, role: "user" };
+    const secret = process.env.ACCESS_TOKEN_SECRET;
+    const token = jwt.sign(payload, secret, { expiresIn: "1h" });
 
-  return res.json({ accessToken: token });
+    console.log(`[server] ${email} Logged in`);
+    return res.json({ accessToken: token });
+  } catch (err) {
+    switch (err.errno) {
+      case 1062:
+        console.log(
+          `[server] An account already exists with the email ${email}`
+        );
+        return res
+          .status(500)
+          .json({ error: `An account already exists with the same email` });
+      default:
+        console.log(err);
+        return res.status(500).json({ error: `Unknown Error` });
+    }
+  }
 });
 
 // Login route: checks credentials and returns a signed JWT
-app.post(`${BASE_URL}/api/login`, async (req, res) => {
+app.post(`${BASE_URL}/login_user`, async (req, res) => {
   const { email, password } = req.body || {};
+  console.log(`[server] Logging in ${email}`);
 
   if (!email || !password) {
     return res.status(400).json({ error: "Email and password required" });
@@ -73,28 +90,26 @@ app.post(`${BASE_URL}/api/login`, async (req, res) => {
 
   try {
     const user = await database.selectUserByEmail(email);
-    console.log(user);
 
     if (!user) {
       res.status(500).json({ error: "Error getting user from database" });
     }
 
     const passwordMatch = await bcrypt.compare(password, user.password);
+    console.log(`[server] User Found email: ${user.email} role: ${user.role}`);
 
     if (!passwordMatch) {
       return res.status(401).json({ error: "Incorrect Password" });
     }
-
-    console.log(`[server] ${user.email} Logged in`);
 
     // Create JWT payload (keep it small)
     const payload = { id: user.id, email: user.email, role: user.role };
     const secret = process.env.ACCESS_TOKEN_SECRET;
     const token = jwt.sign(payload, secret, { expiresIn: "1h" });
 
+    console.log(`[server] ${email} Logged in`);
     return res.json({ accessToken: token });
   } catch (err) {
-    console.error(err);
     return res.status(500).json({ error: "Server error" });
   }
 });
@@ -105,7 +120,7 @@ app.get(`${BASE_URL}/api/protected`, auth, (req, res) => {
   res.json({ message: "Protected data", user: req.user });
 });
 
-app.post(`${BASE_URL}/api/analyze-image`, auth, async (req, res) => {
+app.post(`${BASE_URL}/api/blip/analyze-image`, auth, async (req, res) => {
   const { image } = req.body || {};
 
   if (!image) {
@@ -134,12 +149,10 @@ app.post(`${BASE_URL}/api/analyze-image`, auth, async (req, res) => {
           const json = JSON.parse(body);
           res.json({ caption: json.caption, description: json.description });
         } catch (e) {
-          res
-            .status(500)
-            .json({
-              error: "Failed to parse BLIP response",
-              details: e.message,
-            });
+          res.status(500).json({
+            error: "Failed to parse BLIP response",
+            details: e.message,
+          });
         }
       });
     });
@@ -153,11 +166,10 @@ app.post(`${BASE_URL}/api/analyze-image`, auth, async (req, res) => {
     request.write(data);
     request.end();
   } catch (err) {
-    console.error(err);
     return res.status(500).json({ error: "Server error" });
   }
 });
 
 app.listen(PORT, () => {
-  console.log(`[server] Running at http://localhost:${PORT}`);
+  console.log(`[server] Server running at http://localhost:${PORT}`);
 });

@@ -1,6 +1,9 @@
 import { UI } from "../../lang/en/user.js";
-import { $root, BASE_URL, HTML } from "../constants.js";
+import { $root, SERVER_BASE_URL, HTML } from "../constants.js";
 import { WindowManager } from "../managers/windowManager.js";
+
+const PAGE_TITLE = "Login";
+const LOGIN_USER_URL = `${SERVER_BASE_URL}/login_user`;
 
 class FormData {
   constructor(email, password) {
@@ -8,8 +11,6 @@ class FormData {
     this.password = password;
   }
 }
-
-const PAGE_TITLE = "Login";
 
 class LogIn {
   constructor() {
@@ -54,10 +55,10 @@ class LogIn {
       };
 
       try {
-        const resp = await fetch(`${BASE_URL}/api/login`, request);
-        const data = await resp.json();
+        const response = await fetch(LOGIN_USER_URL, request);
+        const data = await response.json();
 
-        if (!resp.ok) {
+        if (!response.ok) {
           // show simple alert for errors (could be improved to render in DOM)
           console.log(data.error || "Login failed");
           return;

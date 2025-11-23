@@ -1,8 +1,14 @@
 export const $root = $("#root");
 
-export const BASE_URL = "https://j-hutchinson.com/COMP4537/assignment";
+// DEPLOYED URL FOR PRODUCTION
+// export const SERVER_BASE_URL =
+//   "https://j-hutchinson.com/COMP4537/assignment/server";
 
-// Where the optional proxy runs (default to local proxy port 3000)
+// LOCAL URL FOR TESTING
+export const SERVER_BASE_URL =
+  "http://localhost:3000/COMP4537/assignment/server";
+
+// Where the optional proxy runs
 export const PROXY_BASE = "http://127.0.0.1:5000";
 
 export const PAGES = {

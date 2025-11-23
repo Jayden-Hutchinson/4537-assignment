@@ -1,8 +1,9 @@
-import { $root } from "../constants.js";
-import { ImageForm } from "../components/imageForm.js";
-import { HTML } from "../constants.js";
+import { $root, HTML } from "../constants.js";
 import { UI } from "../../lang/en/user.js";
 import { WindowManager } from "../managers/windowManager.js";
+
+import { ImageForm } from "../components/imageForm.js";
+import { AdminPage } from "../components/adminPage.js";
 
 const PAYLOAD_INDEX = 1;
 const PAGE_TITLE = "Caption Generator";
@@ -26,13 +27,15 @@ class Index {
         .click(() => {
           WindowManager.signUpPage();
         });
+
       $root.append(loginButton, signupButton);
-      return;
     }
 
     // Successfully logged in
     const payload = this.parseTokenPayload(token);
     const role = payload.role;
+    console.log(`Logged in as ${payload.email}`);
+
     switch (role) {
       case "user":
         const imageForm = new ImageForm();
@@ -40,7 +43,8 @@ class Index {
         break;
 
       case "admin":
-        $root.html("Hello admin");
+        const adminPage = new AdminPage();
+        $root.html(adminPage.element);
         break;
     }
 

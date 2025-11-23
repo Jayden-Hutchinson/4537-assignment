@@ -18,7 +18,7 @@ processor = BlipProcessor.from_pretrained("Salesforce/blip-image-captioning-base
 model = BlipForConditionalGeneration.from_pretrained("Salesforce/blip-image-captioning-base")
 print("BLIP model loaded successfully!")
 
-@app.route('/analyze', methods=['POST'])
+@app.route('/api/blip/analyze', methods=['POST'])
 def analyze_image():
     try:
         data = request.get_json()

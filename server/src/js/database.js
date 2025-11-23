@@ -24,7 +24,8 @@ class Database {
       password,
       database,
     });
-    console.log("[database] Connected");
+
+    console.log(`[database] Database ${database} connected with Host ${host}`);
 
     // create users table
     await this.createUserTable();
@@ -33,13 +34,13 @@ class Database {
   async createUserTable() {
     const sql = fs.readFileSync(SQL_FILES.CREATE_USERS_TABLE, ENCODING.UTF8);
     await this.connection.execute(sql);
-    console.log("[database] Users table created or already exists");
+    console.log('[database] Table "users" created or already exists');
   }
 
   async insertUser(email, password, role = "user") {
     const sql = fs.readFileSync(SQL_FILES.INSERT_INTO_USERS, ENCODING.UTF8);
     await this.connection.execute(sql, [email, password, role]);
-    console.log("User added to database");
+    console.log(`[database] User ${email} added to database as ${role}`);
   }
 
   async selectUserByEmail(email) {
