@@ -1,5 +1,5 @@
 import { UI } from "../../lang/en/user.js";
-import { HTML, PROXY_BASE } from "../constants.js";
+import { HTML, SERVER_BASE_URL } from "../constants.js";
 
 export class ImageForm {
   constructor() {
@@ -75,24 +75,30 @@ export class ImageForm {
           const headers = { "Content-Type": "application/json" };
           if (token) headers.Authorization = `Bearer ${token}`;
 
-          // Call the proxy analyze endpoint (proxy will forward to local analyze service)
+          // Call the server analyze endpoint (server will forward to BLIP service)
           load_message.html("Analyzing Image");
           const response = await fetch(`${PROXY_BASE}/analyze`, {
             method: "POST",
             headers,
             body: JSON.stringify({ image: base64Image }),
           });
+          const quotaHeader = response.headers.get("x-quota-exceeded") || response.headers.get("X-Quota-Exceeded");
 
           if (response.ok) {
             // Display the caption
             const data = await response.json();
             load_message.text(`Description: ${data.caption}`);
             console.log("Description:", data.caption);
+            if (quotaHeader) {
+              // show warning to user but continue
+              const warn = $(HTML.ELEMENTS.DIV).addClass("quota-warning").text(
+                "You have reached your free API quota. Further requests will still work but may be limited."
+              );
+              load_message.after(warn);
+            }
           } else {
             load_message.text(`Error analyzing image`);
-            console.log(
-              `Error analyzing image: ${response.status} ${response.statusText}`
-            );
+            console.log(`Error analyzing image: ${response.status} ${response.statusText}`);
           }
           submitButton.show();
         };

@@ -4,6 +4,7 @@ import { WindowManager } from "../managers/windowManager.js";
 
 import { ImageForm } from "../components/imageForm.js";
 import { AdminPage } from "../components/adminPage.js";
+import { UserProfile } from "../components/userProfile.js";
 
 const PAYLOAD_INDEX = 1;
 const PAGE_TITLE = "Caption Generator";
@@ -39,6 +40,8 @@ class Index {
     switch (role) {
       case "user":
         const imageForm = new ImageForm();
+        const profile = new UserProfile();
+        $root.append(profile.element);
         $root.append(imageForm.element);
         break;
 
