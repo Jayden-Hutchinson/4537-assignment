@@ -35,6 +35,15 @@ const swaggerOptions = {
         description: "Development server",
       },
     ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+        },
+      },
+    },
   },
   apis: ["./server.js"], // Path to the API routes file
 };
@@ -107,6 +116,50 @@ app.get(`${BASE_URL}/`, (req, res) => {
   res.send("Server Running...");
 });
 
+/**
+ * @swagger
+ * /signup_user:
+ *   post:
+ *     summary: Sign up a new user
+ *     description: Create a new user account with email and password
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: newuser@example.com
+ *               password:
+ *                 type: string
+ *                 example: password123
+ *           example:
+ *             email: newuser@example.com
+ *             password: password123
+ *     responses:
+ *       200:
+ *         description: Successful signup
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 accessToken:
+ *                   type: string
+ *             example:
+ *               accessToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+ *       500:
+ *         description: Server error (email already exists or other error)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ */
 app.post(`${BASE_URL}/signup_user`, async (req, res) => {
   const { email, password } = req.body || {};
 
@@ -244,6 +297,55 @@ app.get(`${BASE_URL}/api/protected`, auth, (req, res) => {
   res.json({ message: "Protected data", user: req.user });
 });
 
+/**
+ * @swagger
+ * /api/analyze-image:
+ *   post:
+ *     summary: Analyze an image using AI
+ *     description: Upload a base64 encoded image to get AI-generated descriptions from BLIP and Mistral
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               image:
+ *                 type: string
+ *                 format: base64
+ *                 description: Base64 encoded image (JPEG or PNG)
+ *           example:
+ *             image: data:image/jpeg;base64,/9j/4AAQSkZJRg...
+ *     responses:
+ *       200:
+ *         description: Successful image analysis
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 caption:
+ *                   type: string
+ *                   description: Image description from BLIP AI
+ *                 description:
+ *                   type: string
+ *                   description: Alternative description
+ *                 enhanced_description:
+ *                   type: string
+ *                   description: Funny caption from Mistral AI
+ *             example:
+ *               caption: a drawing of a boy with purple eyes
+ *               description: a drawing of a boy with purple eyes
+ *               enhanced_description: and green hair, holding a pink flamingo
+ *       401:
+ *         description: Unauthorized - missing or invalid token
+ *       413:
+ *         description: Image too large
+ *       500:
+ *         description: Server error
+ */
 app.post(`${BASE_URL}/api/analyze-image`, auth, async (req, res) => {
   const { image } = req.body || {};
 
@@ -362,6 +464,35 @@ app.get(`${BASE_URL}/api/admin/user-usage`, auth, async (req, res) => {
 });
 
 // Return all users (for admin management)
+/**
+ * @swagger
+ * /api/admin/users:
+ *   get:
+ *     summary: Get all users
+ *     description: Returns a list of all users (admin only)
+ *     responses:
+ *       200:
+ *         description: Successful response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                   email:
+ *                     type: string
+ *                   password:
+ *                     type: string
+ *                   role:
+ *                     type: string
+ *       403:
+ *         description: Forbidden - admin access required
+ *       500:
+ *         description: Server error
+ */
 app.get(`${BASE_URL}/api/admin/users`, auth, async (req, res) => {
   if (!req.user || req.user.role !== "admin")
     return res.status(403).json({ error: "Forbidden" });
@@ -375,6 +506,36 @@ app.get(`${BASE_URL}/api/admin/users`, auth, async (req, res) => {
 });
 
 // Delete a user by email (admin only)
+/**
+ * @swagger
+ * /api/admin/user/{email}:
+ *   delete:
+ *     summary: Delete a user by email
+ *     description: Deletes a user account by their email address (admin only)
+ *     parameters:
+ *       - in: path
+ *         name: email
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The email address of the user to delete (URL encoded)
+ *     responses:
+ *       200:
+ *         description: User successfully deleted
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *       400:
+ *         description: Bad request - email required
+ *       403:
+ *         description: Forbidden - admin access required
+ *       500:
+ *         description: Server error
+ */
 app.delete(`${BASE_URL}/api/admin/user/:email`, auth, async (req, res) => {
   if (!req.user || req.user.role !== "admin")
     return res.status(403).json({ error: "Forbidden" });
@@ -390,6 +551,49 @@ app.delete(`${BASE_URL}/api/admin/user/:email`, auth, async (req, res) => {
 });
 
 // Update a user (email and/or password). Accepts JSON { email, password }
+/**
+ * @swagger
+ * /api/admin/user/{email}:
+ *   patch:
+ *     summary: Update a user's email and/or password
+ *     description: Updates a user's email address and/or password (admin only)
+ *     parameters:
+ *       - in: path
+ *         name: email
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The current email address of the user (URL encoded)
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 description: New email address (optional)
+ *               password:
+ *                 type: string
+ *                 description: New password (optional)
+ *     responses:
+ *       200:
+ *         description: User successfully updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *       400:
+ *         description: Bad request - original email required
+ *       403:
+ *         description: Forbidden - admin access required
+ *       500:
+ *         description: Server error
+ */
 app.patch(`${BASE_URL}/api/admin/user/:email`, auth, async (req, res) => {
   if (!req.user || req.user.role !== "admin")
     return res.status(403).json({ error: "Forbidden" });
