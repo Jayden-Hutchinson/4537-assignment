@@ -23,24 +23,8 @@ export class AdminPage {
     );
     endpointsTable.append($("<tbody>"));
 
-    const usersSection = $(HTML.ELEMENTS.DIV).addClass("admin-users");
-    usersSection.append($(HTML.ELEMENTS.H2).text("User Consumption"));
-    const usersTable = $("<table>").addClass("users-table");
-    usersTable.append(
-      $("<thead>").append(
-        $("<tr>").append(
-          $("<th>").text("User name"),
-          $("<th>").text("Email"),
-          $("<th>").text("Total Requests")
-        )
-      )
-    );
-    usersTable.append($("<tbody>"));
-
     endpointsSection.append(endpointsTable);
-    usersSection.append(usersTable);
-
-    this.element.append(endpointsSection, usersSection);
+    this.element.append(endpointsSection);
 
     // Try to fetch data from server using the stored access token
     let endpointsData = null;
@@ -70,39 +54,21 @@ export class AdminPage {
       }
     }
 
+
     try {
       const res = await fetch(`${SERVER_BASE_URL}/api/admin/user-usage`, { method: "GET", headers });
       if (res.ok) {
         usersData = await res.json();
-      } else {
-        console.error("Failed to fetch /api/admin/user-usage:", res.status, await res.text());
       }
     } catch (e) {
-      console.error("Error fetching /api/admin/user-usage:", e);
+      console.error("Error fetching user-usage for totals:", e);
     }
 
-    if (!usersData) {
-      try {
-        const res = await fetch(`${SERVER_BASE_URL}/admin/user-usage`, { method: "GET", headers });
-        if (res.ok) usersData = await res.json();
-        else console.error("Fallback /admin/user-usage returned:", res.status);
-      } catch (e) {
-        console.error("Fallback error fetching /admin/user-usage:", e);
-      }
-    }
-
-    // If still null, show placeholder sample data
+    // If no endpoints data, show placeholder sample data
     if (!endpointsData) {
       endpointsData = [
         { method: "PUT", endpoint: "/API/v1/customers/id", requests: 79 },
         { method: "GET", endpoint: "/API/v1/customers/id", requests: 145 },
-      ];
-    }
-
-    if (!usersData) {
-      usersData = [
-        { username: "Jaohn23", email: "john@john.xyp", totalRequests: 143 },
-        { username: "tom45", email: "tom@tom.io", totalRequests: 12 },
       ];
     }
 
@@ -118,16 +84,90 @@ export class AdminPage {
       );
     });
 
-    // Render users
-    const uBody = usersTable.find("tbody");
-    usersData.forEach((u) => {
-      uBody.append(
-        $("<tr>").append(
-          $("<td>").text(u.username),
-          $("<td>").text(u.email),
-          $("<td>").text(u.totalRequests)
-        )
-      );
-    });
+    // (User list rendering moved to Manage Users section to avoid duplication)
+
+    // Management section: fetch full users list and render management table with actions
+    try {
+      const usersRes = await fetch(`${SERVER_BASE_URL}/api/admin/users`, { method: "GET", headers });
+      if (usersRes.ok) {
+        const usersList = await usersRes.json();
+        const manageSection = $(HTML.ELEMENTS.DIV).addClass("manage-users");
+        manageSection.append($(HTML.ELEMENTS.H2).text("Manage Users"));
+        const manageTable = $("<table>").addClass("manage-table");
+        manageTable.append(
+          $("<thead>").append($("<tr>").append($("<th>").text("Email"), $("<th>").text("Role"), $("<th>").text("Total Requests"), $("<th>").text("Actions")))
+        );
+        const mtbody = $("<tbody>");
+
+        // map of totals by email
+        const totals = (usersData || []).reduce((acc, it) => { acc[it.email] = it.totalRequests; return acc; }, {});
+
+        for (const u of usersList) {
+          const email = u.email;
+          const tr = $("<tr>").append(
+            $("<td>").text(email),
+            $("<td>").text(u.role || "user"),
+            $("<td>").text(totals[email] || 0)
+          );
+
+          const deleteBtn = $("<button>").text("Delete").addClass("admin-delete").attr("data-email", email);
+          const updateBtn = $("<button>").text("Update").addClass("admin-update").attr("data-email", email);
+          const actionsTd = $("<td>").append(deleteBtn, updateBtn);
+          tr.append(actionsTd);
+          mtbody.append(tr);
+        }
+
+        manageTable.append(mtbody);
+        manageSection.append(manageTable);
+        this.element.append(manageSection);
+
+        // Attach handlers
+        this.element.find(".admin-delete").on("click", async (e) => {
+          const target = $(e.currentTarget);
+          const email = target.attr("data-email");
+          if (!confirm(`Delete user ${email}? This cannot be undone.`)) return;
+          try {
+            const delRes = await fetch(`${SERVER_BASE_URL}/api/admin/user/${encodeURIComponent(email)}`, { method: "DELETE", headers });
+            if (delRes.ok) {
+              alert(`Deleted ${email}`);
+              target.closest("tr").remove();
+            } else {
+              const t = await delRes.text();
+              alert(`Failed to delete: ${delRes.status} ${t}`);
+            }
+          } catch (err) {
+            console.error("Delete error:", err);
+            alert("Failed to delete user");
+          }
+        });
+
+        this.element.find(".admin-update").on("click", async (e) => {
+          const target = $(e.currentTarget);
+          const email = target.attr("data-email");
+          const newEmail = prompt("Enter new email (leave blank to keep):", email) || null;
+          const newPassword = prompt("Enter new password (leave blank to keep):", "") || null;
+          const body = {};
+          if (newEmail && newEmail !== email) body.email = newEmail;
+          if (newPassword) body.password = newPassword;
+          if (Object.keys(body).length === 0) return;
+          try {
+            const patchRes = await fetch(`${SERVER_BASE_URL}/api/admin/user/${encodeURIComponent(email)}`, { method: "PATCH", headers, body: JSON.stringify(body) });
+            if (patchRes.ok) {
+              alert(`Updated ${email}`);
+              // simple refresh: reload page state
+              location.reload();
+            } else {
+              const t = await patchRes.text();
+              alert(`Failed to update: ${patchRes.status} ${t}`);
+            }
+          } catch (err) {
+            console.error("Update error:", err);
+            alert("Failed to update user");
+          }
+        });
+      }
+    } catch (e) {
+      console.error("Failed to load management users:", e);
+    }
   }
 }

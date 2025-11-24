@@ -58,10 +58,34 @@ class Database {
     return results[0]; // returns user object or undefined
   }
 
+  async getAllUsers() {
+    const sql = `SELECT id, email, role FROM users`;
+    const [rows] = await this.connection.execute(sql);
+    return rows;
+  }
+
   // Insert a usage event for a given user (email), method and endpoint
   async insertUsage(email, method, endpoint) {
     const sql = `INSERT INTO usage_events (email, method, endpoint) VALUES (?, ?, ?)`;
     await this.connection.execute(sql, [email, method, endpoint]);
+  }
+
+  async deleteUserByEmail(email) {
+    const sql = `DELETE FROM users WHERE email = ?`;
+    const [result] = await this.connection.execute(sql, [email]);
+    return result;
+  }
+
+  async updateUserEmail(oldEmail, newEmail) {
+    const sql = `UPDATE users SET email = ? WHERE email = ?`;
+    const [result] = await this.connection.execute(sql, [newEmail, oldEmail]);
+    return result;
+  }
+
+  async updateUserPassword(email, hashedPassword) {
+    const sql = `UPDATE users SET password = ? WHERE email = ?`;
+    const [result] = await this.connection.execute(sql, [hashedPassword, email]);
+    return result;
   }
 
   // Aggregate endpoint stats
