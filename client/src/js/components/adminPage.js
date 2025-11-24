@@ -1,4 +1,4 @@
-import { HTML, PROXY_BASE } from "../constants.js";
+import { HTML, SERVER_BASE_URL } from "../constants.js";
 
 export class AdminPage {
   constructor() {
@@ -47,25 +47,25 @@ export class AdminPage {
     let usersData = null;
 
     try {
-      const res = await fetch("/api/admin/stats");
+      const res = await fetch(`${SERVER_BASE_URL}/api/admin/stats`);
       if (res.ok) endpointsData = await res.json();
     } catch (e) {}
 
     if (!endpointsData) {
       try {
-        const res = await fetch(`${PROXY_BASE}/admin/stats`);
+        const res = await fetch(`${SERVER_BASE_URL}/admin/stats`);
         if (res.ok) endpointsData = await res.json();
       } catch (e) {}
     }
 
     try {
-      const res = await fetch("/api/admin/user-usage");
+      const res = await fetch(`${SERVER_BASE_URL}/api/admin/user-usage`);
       if (res.ok) usersData = await res.json();
     } catch (e) {}
 
     if (!usersData) {
       try {
-        const res = await fetch(`${PROXY_BASE}/admin/user-usage`);
+        const res = await fetch(`${SERVER_BASE_URL}/admin/user-usage`);
         if (res.ok) usersData = await res.json();
       } catch (e) {}
     }
