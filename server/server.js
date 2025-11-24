@@ -57,7 +57,8 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 app.use(
   cors({
     origin: "*",
-    methods: ["GET", "POST"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   })
 );
@@ -356,6 +357,57 @@ app.get(`${BASE_URL}/api/admin/user-usage`, auth, async (req, res) => {
     res.json(users);
   } catch (e) {
     res.status(500).json({ error: "Failed to fetch user usage" });
+  }
+});
+
+// Return all users (for admin management)
+app.get(`${BASE_URL}/api/admin/users`, auth, async (req, res) => {
+  if (!req.user || req.user.role !== "admin")
+    return res.status(403).json({ error: "Forbidden" });
+  try {
+    const rows = await database.getAllUsers();
+    res.json(rows);
+  } catch (e) {
+    console.error("Failed to fetch users:", e.message);
+    res.status(500).json({ error: "Failed to fetch users" });
+  }
+});
+
+// Delete a user by email (admin only)
+app.delete(`${BASE_URL}/api/admin/user/:email`, auth, async (req, res) => {
+  if (!req.user || req.user.role !== "admin")
+    return res.status(403).json({ error: "Forbidden" });
+  const email = decodeURIComponent(req.params.email || "");
+  if (!email) return res.status(400).json({ error: "Email required" });
+  try {
+    await database.deleteUserByEmail(email);
+    res.json({ success: true });
+  } catch (e) {
+    console.error("Failed to delete user:", e.message);
+    res.status(500).json({ error: "Failed to delete user" });
+  }
+});
+
+// Update a user (email and/or password). Accepts JSON { email, password }
+app.patch(`${BASE_URL}/api/admin/user/:email`, auth, async (req, res) => {
+  if (!req.user || req.user.role !== "admin")
+    return res.status(403).json({ error: "Forbidden" });
+  const oldEmail = decodeURIComponent(req.params.email || "");
+  const { email: newEmail, password: newPassword } = req.body || {};
+  if (!oldEmail) return res.status(400).json({ error: "Original email required" });
+  try {
+    if (newEmail) {
+      await database.updateUserEmail(oldEmail, newEmail);
+    }
+    if (newPassword) {
+      const hashed = await bcrypt.hash(newPassword.trim(), 10);
+      const targetEmail = newEmail || oldEmail;
+      await database.updateUserPassword(targetEmail, hashed);
+    }
+    res.json({ success: true });
+  } catch (e) {
+    console.error("Failed to update user:", e.message);
+    res.status(500).json({ error: "Failed to update user" });
   }
 });
 
