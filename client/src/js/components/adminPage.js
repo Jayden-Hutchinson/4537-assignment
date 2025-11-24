@@ -1,4 +1,4 @@
-import { HTML, PROXY_BASE, SERVER_BASE_URL } from "../constants.js";
+import { HTML, SERVER_BASE_URL } from "../constants.js";
 
 export class AdminPage {
   constructor() {
