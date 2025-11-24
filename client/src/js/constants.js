@@ -1,15 +1,12 @@
 export const $root = $("#root");
 
 // DEPLOYED URL FOR PRODUCTION
-export const SERVER_BASE_URL =
-  "https://j-hutchinson.com/COMP4537/assignment/server";
+// export const SERVER_BASE_URL =
+//   "https://j-hutchinson.com/COMP4537/assignment/server";
 
 // LOCAL URL FOR TESTING
-// export const SERVER_BASE_URL =
-//   "http://localhost:3000/COMP4537/assignment/server";
-
-// Where the optional proxy runs
-export const PROXY_BASE = "https://mistral4537.ngrok.app";
+export const SERVER_BASE_URL =
+  "http://localhost:3000/COMP4537/assignment/server";
 
 export const PAGES = {
   INDEX: "index.html",
