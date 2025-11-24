@@ -15,6 +15,7 @@ const app = express();
 // Use provided PORT or fallback for local development
 const PORT = process.env.PORT || 3000;
 const BASE_URL = "/COMP4537/assignment/server";
+const NGROK_URL = "https://mistral4537.ngrok.app";
 
 const database = new Database();
 
@@ -156,61 +157,88 @@ app.get(`${BASE_URL}/api/protected`, auth, (req, res) => {
   res.json({ message: "Protected data", user: req.user });
 });
 
-app.post(`${BASE_URL}/api/blip/analyze-image`, auth, async (req, res) => {
+app.post(`${BASE_URL}/api/analyze-image`, auth, async (req, res) => {
   const { image } = req.body || {};
 
-  if (!image) {
-    return res.status(400).json({ error: "Image data required " });
+  console.log(image);
+
+  const headers = { "Content-Type": "application/json" };
+
+  const request = {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ image: image }),
+  };
+
+  const url = `${NGROK_URL}/analyze`;
+  const response = await fetch(url, request);
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    if (response.status === 413) {
+      throw new Error("Image still too large — try a smaller photo");
+    }
+    throw new Error(`Server error ${response.status}: ${errorText}`);
   }
 
-  try {
-    const data = JSON.stringify({ image });
+  const data = await response.json();
+  console.log(data);
+  res.json(data);
+  console.log(response);
 
-    const options = {
-      hostname: "localhost",
-      port: 5000,
-      path: "/analyze",
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Content-Length": data.length,
-      },
-    };
+  // if (!image) {
+  //   return res.status(400).json({ error: "Image data required " });
+  // }
 
-    const request = http.request(options, (response) => {
-      let body = "";
-      response.on("data", (chunk) => (body += chunk));
-      response.on("end", () => {
-        try {
-          const json = JSON.parse(body);
-          res.json({ caption: json.caption, description: json.description });
-        } catch (e) {
-          res.status(500).json({
-            error: "Failed to parse BLIP response",
-            details: e.message,
-          });
-        }
-      });
-    });
+  // try {
+  //   const data = JSON.stringify({ image });
 
-    request.on("error", (err) => {
-      res
-        .status(500)
-        .json({ error: "BLIP service unavailable", details: err.message });
-    });
+  //   const options = {
+  //     hostname: "localhost",
+  //     port: 5000,
+  //     path: "/analyze",
+  //     method: "POST",
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //       "Content-Length": data.length,
+  //     },
+  //   };
 
-    request.write(data);
-    request.end();
-  } catch (err) {
-    return res.status(500).json({ error: "Server error" });
-  }
+  //   const request = http.request(options, (response) => {
+  //     let body = "";
+  //     response.on("data", (chunk) => (body += chunk));
+  //     response.on("end", () => {
+  //       try {
+  //         const json = JSON.parse(body);
+  //         res.json({ caption: json.caption, description: json.description });
+  //       } catch (e) {
+  //         res.status(500).json({
+  //           error: "Failed to parse BLIP response",
+  //           details: e.message,
+  //         });
+  //       }
+  //     });
+  //   });
+
+  //   request.on("error", (err) => {
+  //     res
+  //       .status(500)
+  //       .json({ error: "BLIP service unavailable", details: err.message });
+  //   });
+
+  //   request.write(data);
+  //   request.end();
+  // } catch (err) {
+  //   return res.status(500).json({ error: "Server error" });
+  // }
 });
 
 // Admin stats endpoints
 // Return counts per endpoint
-app.get(`/api/admin/stats`, auth, async (req, res) => {
+app.get(`${BASE_URL}/api/admin/stats`, auth, async (req, res) => {
   // only admin role allowed
-  if (!req.user || req.user.role !== "admin") return res.status(403).json({ error: "Forbidden" });
+  if (!req.user || req.user.role !== "admin")
+    return res.status(403).json({ error: "Forbidden" });
 
   try {
     const rows = await database.getEndpointStats();
@@ -222,11 +250,16 @@ app.get(`/api/admin/stats`, auth, async (req, res) => {
 });
 
 // Return per-user usage summary
-app.get(`/api/admin/user-usage`, auth, async (req, res) => {
-  if (!req.user || req.user.role !== "admin") return res.status(403).json({ error: "Forbidden" });
+app.get(`${BASE_URL}/api/admin/user-usage`, auth, async (req, res) => {
+  if (!req.user || req.user.role !== "admin")
+    return res.status(403).json({ error: "Forbidden" });
   try {
     const rows = await database.getUserUsageSummary();
-    const users = rows.map((r) => ({ username: (r.email || "").split("@")[0], email: r.email, totalRequests: r.totalRequests }));
+    const users = rows.map((r) => ({
+      username: (r.email || "").split("@")[0],
+      email: r.email,
+      totalRequests: r.totalRequests,
+    }));
     res.json(users);
   } catch (e) {
     res.status(500).json({ error: "Failed to fetch user usage" });
@@ -234,9 +267,10 @@ app.get(`/api/admin/user-usage`, auth, async (req, res) => {
 });
 
 // Return usage for the authenticated user
-app.get(`/api/user/usage`, auth, async (req, res) => {
+app.get(`${BASE_URL}/api/user/usage`, auth, async (req, res) => {
   const email = req.user && req.user.email ? req.user.email : null;
-  if (!email) return res.status(400).json({ error: "User email not found in token" });
+  if (!email)
+    return res.status(400).json({ error: "User email not found in token" });
   try {
     const data = await database.getUserUsage(email);
     res.json(data);
