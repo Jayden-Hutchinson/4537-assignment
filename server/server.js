@@ -9,7 +9,8 @@ const bcrypt = require("bcryptjs");
 const http = require("http");
 const express = require("express");
 const { hostname } = require("os");
-
+const swaggerJsDoc = require("swagger-jsdoc");
+const swaggerUi = require("swagger-ui-express");
 const app = express();
 
 // Use provided PORT or fallback for local development
@@ -18,6 +19,26 @@ const BASE_URL = "/COMP4537/assignment/server";
 const NGROK_URL = "https://mistral4537.ngrok.app";
 
 const database = new Database();
+
+const swaggerOptions = {
+  definition: {
+    openapi: "3.0.0",
+    info: {
+      title: "4537 Assignment Server API",
+      version: "1.0.0",
+      description: "API server for COMP4537 assignment to track user usage and analyze images",
+    },
+    servers: [
+      {
+        url: `http://localhost:${PORT}${BASE_URL}`,
+        description: "Development server",
+      },
+    ],
+  },
+  apis: ["./server.js"], // Path to the API routes file
+};
+const swaggerDocs = swaggerJsDoc(swaggerOptions);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 // initialize database connection
 (async () => {
@@ -116,6 +137,40 @@ app.post(`${BASE_URL}/signup_user`, async (req, res) => {
 });
 
 // Login route: checks credentials and returns a signed JWT
+/**
+ * @swagger
+ * /login_user:
+ *   post:
+ *     summary: Login a user and receive an access token
+ *     description: Authenticate user with email and password to receive a JWT access token
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Successful login
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 accessToken:
+ *                   type: string
+ *       400:
+ *         description: Missing email or password
+ *       401:
+ *         description: Incorrect password
+ *       500:
+ *         description: Server error
+ */
 app.post(`${BASE_URL}/login_user`, async (req, res) => {
   const { email, password } = req.body || {};
   console.log(`[server] Logging in ${email}`);
@@ -152,6 +207,36 @@ app.post(`${BASE_URL}/login_user`, async (req, res) => {
 });
 
 // Example protected route (use this pattern for routes that must be authenticated)
+/**
+ * @swagger
+ * /api/protected:
+ *   get:
+ *     summary: Example protected route
+ *     description: Access protected data with a valid JWT access token
+ *     responses:
+ *       200:
+ *         description: Successful access to protected data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                     email:
+ *                       type: string
+ *                     role:
+ *                       type: string
+ *       401:
+ *         description: Unauthorized - missing or invalid token
+ *       500:
+ *         description: Server error
+ */
 app.get(`${BASE_URL}/api/protected`, auth, (req, res) => {
   // `auth` sets req.user when token is valid
   res.json({ message: "Protected data", user: req.user });
@@ -185,56 +270,37 @@ app.post(`${BASE_URL}/api/analyze-image`, auth, async (req, res) => {
   console.log(data);
   res.json(data);
   console.log(response);
-
-  // if (!image) {
-  //   return res.status(400).json({ error: "Image data required " });
-  // }
-
-  // try {
-  //   const data = JSON.stringify({ image });
-
-  //   const options = {
-  //     hostname: "localhost",
-  //     port: 5000,
-  //     path: "/analyze",
-  //     method: "POST",
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //       "Content-Length": data.length,
-  //     },
-  //   };
-
-  //   const request = http.request(options, (response) => {
-  //     let body = "";
-  //     response.on("data", (chunk) => (body += chunk));
-  //     response.on("end", () => {
-  //       try {
-  //         const json = JSON.parse(body);
-  //         res.json({ caption: json.caption, description: json.description });
-  //       } catch (e) {
-  //         res.status(500).json({
-  //           error: "Failed to parse BLIP response",
-  //           details: e.message,
-  //         });
-  //       }
-  //     });
-  //   });
-
-  //   request.on("error", (err) => {
-  //     res
-  //       .status(500)
-  //       .json({ error: "BLIP service unavailable", details: err.message });
-  //   });
-
-  //   request.write(data);
-  //   request.end();
-  // } catch (err) {
-  //   return res.status(500).json({ error: "Server error" });
-  // }
 });
 
 // Admin stats endpoints
 // Return counts per endpoint
+/**
+ * @swagger
+ * /api/admin/stats:
+ *   get:
+ *     summary: Get API endpoint usage statistics
+ *     description: Returns the number of requests made to each API endpoint
+ *     responses:
+ *       200:
+ *         description: Successful response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   method:
+ *                     type: string
+ *                   endpoint:
+ *                     type: string
+ *                   requests:
+ *                     type: integer
+ *       403:
+ *         description: Forbidden - admin access required
+ *       500:
+ *         description: Server error
+ */
 app.get(`${BASE_URL}/api/admin/stats`, auth, async (req, res) => {
   // only admin role allowed
   if (!req.user || req.user.role !== "admin")
@@ -250,6 +316,33 @@ app.get(`${BASE_URL}/api/admin/stats`, auth, async (req, res) => {
 });
 
 // Return per-user usage summary
+/**
+ * @swagger
+ * /api/admin/user-usage:
+ *   get:
+ *     summary: Get user API usage summary
+ *     description: Returns a summary of API usage per user
+ *     responses:
+ *       200:
+ *         description: Successful response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   username:
+ *                     type: string
+ *                   email:
+ *                     type: string
+ *                   totalRequests:
+ *                     type: integer
+ *       403:
+ *         description: Forbidden - admin access required
+ *       500:
+ *         description: Server error
+ */
 app.get(`${BASE_URL}/api/admin/user-usage`, auth, async (req, res) => {
   if (!req.user || req.user.role !== "admin")
     return res.status(403).json({ error: "Forbidden" });
@@ -267,6 +360,38 @@ app.get(`${BASE_URL}/api/admin/user-usage`, auth, async (req, res) => {
 });
 
 // Return usage for the authenticated user
+/**
+ * @swagger
+ * /api/user/usage:
+ *   get:
+ *     summary: Get authenticated user's API usage
+ *     description: Returns the API usage summary for the authenticated user
+ *     responses:
+ *       200:
+ *         description: Successful response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 total:
+ *                   type: integer
+ *                 perEndpoint:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       method:
+ *                         type: string
+ *                       endpoint:
+ *                         type: string
+ *                       count:
+ *                         type: integer
+ *       401:
+ *         description: Unauthorized - missing or invalid token
+ *       500:
+ *         description: Server error
+ */
 app.get(`${BASE_URL}/api/user/usage`, auth, async (req, res) => {
   const email = req.user && req.user.email ? req.user.email : null;
   if (!email)
