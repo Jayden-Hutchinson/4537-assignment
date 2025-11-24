@@ -50,17 +50,27 @@ export class AdminPage {
     if (token) headers.Authorization = `Bearer ${token}`;
 
     try {
-      const res = await fetch(`${SERVER_BASE_URL}/api/admin/stats`, { method: "GET", headers });
+      const res = await fetch(`${SERVER_BASE_URL}/api/admin/stats`);
       if (res.ok) endpointsData = await res.json();
-    } catch (e) {
-      console.error("Failed to fetch admin stats:", e);
+    } catch (e) {}
+
+    if (!endpointsData) {
+      try {
+        const res = await fetch(`${SERVER_BASE_URL}/admin/stats`);
+        if (res.ok) endpointsData = await res.json();
+      } catch (e) {}
     }
 
     try {
-      const res = await fetch(`${SERVER_BASE_URL}/api/admin/user-usage`, { method: "GET", headers });
+      const res = await fetch(`${SERVER_BASE_URL}/api/admin/user-usage`);
       if (res.ok) usersData = await res.json();
-    } catch (e) {
-      console.error("Failed to fetch admin user usage:", e);
+    } catch (e) {}
+
+    if (!usersData) {
+      try {
+        const res = await fetch(`${SERVER_BASE_URL}/admin/user-usage`);
+        if (res.ok) usersData = await res.json();
+      } catch (e) {}
     }
 
     // If still null, show placeholder sample data

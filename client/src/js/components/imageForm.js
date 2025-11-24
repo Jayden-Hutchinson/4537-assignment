@@ -1,5 +1,5 @@
 import { UI } from "../../lang/en/user.js";
-import { HTML, PROXY_BASE } from "../constants.js";
+import { HTML, SERVER_BASE_URL } from "../constants.js";
 
 export class ImageForm {
   constructor() {
@@ -73,11 +73,15 @@ export class ImageForm {
         if (token) headers.Authorization = `Bearer ${token}`;
 
         // Send to server
-        const response = await fetch(`${PROXY_BASE}/analyze`, {
+        const request = {
           method: "POST",
           headers,
           body: JSON.stringify({ image: base64Image }),
-        });
+        };
+
+        const url = `${SERVER_BASE_URL}/api/analyze-image`;
+
+        const response = await fetch(url, request);
 
         if (!response.ok) {
           const errorText = await response.text();
@@ -89,7 +93,11 @@ export class ImageForm {
 
         const data = await response.json();
 
-        let message = `Description: ${data.caption || data.description || "No caption"}`;
+        console.log(data);
+
+        let message = `Description: ${
+          data.caption || data.description || "No caption"
+        }`;
         if (data.enhanced_description) {
           message += `<br><br>Funny caption: ${data.enhanced_description}`;
         } else {
@@ -99,14 +107,15 @@ export class ImageForm {
         load_message.html(message);
 
         // Quota warning
-        const quotaHeader = response.headers.get("x-quota-exceeded") || response.headers.get("X-Quota-Exceeded");
+        const quotaHeader =
+          response.headers.get("x-quota-exceeded") ||
+          response.headers.get("X-Quota-Exceeded");
         if (quotaHeader) {
           const warn = $(HTML.ELEMENTS.DIV)
             .addClass("quota-warning")
             .text("Free API quota reached — further requests may be limited.");
           load_message.after(warn);
         }
-
       } catch (error) {
         console.error("Image analysis failed:", error);
         load_message.html(`Error: ${error.message}`);
@@ -117,7 +126,13 @@ export class ImageForm {
     });
 
     // Append elements
-    this.element.append(formTitle, imageInput, imagePreview, load_message, submitButton);
+    this.element.append(
+      formTitle,
+      imageInput,
+      imagePreview,
+      load_message,
+      submitButton
+    );
   }
 }
 

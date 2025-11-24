@@ -16,7 +16,10 @@ export class UserProfile {
 
     // Primary: try configured server base URL
     try {
-      const res = await fetch(`${SERVER_BASE_URL}/api/user/usage`, { method: "GET", headers });
+      const res = await fetch(`${SERVER_BASE_URL}/api/user/usage`, {
+        method: "GET",
+        headers,
+      });
       if (!res.ok) {
         // show error message for unauthorized or other statuses
         this.container.html(`<p>Unable to load usage data from server (status ${res.status}).</p>`);
@@ -35,20 +38,36 @@ export class UserProfile {
     // Expected data: { total: number, perEndpoint: [{ method, endpoint, count }] }
     this.container.empty();
     const total = data.total ?? 0;
-    this.container.append($(HTML.ELEMENTS.DIV).html(`<strong>Total requests:</strong> ${total}`));
+    this.container.append(
+      $(HTML.ELEMENTS.DIV).html(`<strong>Total requests:</strong> ${total}`)
+    );
 
     if (Array.isArray(data.perEndpoint) && data.perEndpoint.length) {
       const table = $("<table>").addClass("stats-table");
-      const thead = $("<thead>").append($("<tr>").append($("<th>").text("Method"), $("<th>").text("Endpoint"), $("<th>").text("Requests")));
+      const thead = $("<thead>").append(
+        $("<tr>").append(
+          $("<th>").text("Method"),
+          $("<th>").text("Endpoint"),
+          $("<th>").text("Requests")
+        )
+      );
       table.append(thead);
       const tbody = $("<tbody>");
       for (const row of data.perEndpoint) {
-        tbody.append($("<tr>").append($("<td>").text(row.method), $("<td>").text(row.endpoint), $("<td>").text(row.count)));
+        tbody.append(
+          $("<tr>").append(
+            $("<td>").text(row.method),
+            $("<td>").text(row.endpoint),
+            $("<td>").text(row.count)
+          )
+        );
       }
       table.append(tbody);
       this.container.append(table);
     } else {
-      this.container.append($(HTML.ELEMENTS.DIV).text("No per-endpoint data available."));
+      this.container.append(
+        $(HTML.ELEMENTS.DIV).text("No per-endpoint data available.")
+      );
     }
   }
 }
