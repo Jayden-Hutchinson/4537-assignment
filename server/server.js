@@ -26,11 +26,12 @@ const swaggerOptions = {
     info: {
       title: "4537 Assignment Server API",
       version: "1.0.0",
-      description: "API server for COMP4537 assignment to track user usage and analyze images",
+      description:
+        "API server for COMP4537 assignment to track user usage and analyze images",
     },
     servers: [
       {
-        url: `https://j-hutchinson.com/COMP4537/assignment/server`,
+        url: `http://j-hutchinson.com${BASE_URL}`,
         description: "Development server",
       },
     ],
@@ -38,7 +39,7 @@ const swaggerOptions = {
   apis: ["./server.js"], // Path to the API routes file
 };
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
-app.use(`${BASE_URL}/doc`, swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 // initialize database connection
 (async () => {
@@ -153,13 +154,8 @@ app.post(`${BASE_URL}/signup_user`, async (req, res) => {
  *             properties:
  *               email:
  *                 type: string
- *                 example: user@example.com
  *               password:
  *                 type: string
- *                 example: mypassword123
- *           example:
- *             email: user@example.com
- *             password: mypassword123
  *     responses:
  *       200:
  *         description: Successful login
@@ -170,8 +166,6 @@ app.post(`${BASE_URL}/signup_user`, async (req, res) => {
  *               properties:
  *                 accessToken:
  *                   type: string
- *             example:
- *               accessToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
  *       400:
  *         description: Missing email or password
  *       401:
@@ -401,7 +395,8 @@ app.patch(`${BASE_URL}/api/admin/user/:email`, auth, async (req, res) => {
     return res.status(403).json({ error: "Forbidden" });
   const oldEmail = decodeURIComponent(req.params.email || "");
   const { email: newEmail, password: newPassword } = req.body || {};
-  if (!oldEmail) return res.status(400).json({ error: "Original email required" });
+  if (!oldEmail)
+    return res.status(400).json({ error: "Original email required" });
   try {
     if (newEmail) {
       await database.updateUserEmail(oldEmail, newEmail);
