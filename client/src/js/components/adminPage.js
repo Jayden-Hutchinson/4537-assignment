@@ -1,4 +1,4 @@
-import { HTML, SERVER_BASE_URL } from "../constants.js";
+import { HTML, PROXY_BASE, SERVER_BASE_URL } from "../constants.js";
 
 export class AdminPage {
   constructor() {
@@ -42,9 +42,12 @@ export class AdminPage {
 
     this.element.append(endpointsSection, usersSection);
 
-    // Try to fetch data from server; if it fails, attempt proxy fallback, else render sample
+    // Try to fetch data from server using the stored access token
     let endpointsData = null;
     let usersData = null;
+    const token = localStorage.getItem("accessToken");
+    const headers = { "Content-Type": "application/json" };
+    if (token) headers.Authorization = `Bearer ${token}`;
 
     try {
       const res = await fetch(`${SERVER_BASE_URL}/api/admin/stats`);

@@ -1,5 +1,4 @@
 import { HTML, SERVER_BASE_URL } from "../constants.js";
-import { UI } from "../../lang/en/user.js";
 
 export class UserProfile {
   constructor() {
@@ -21,11 +20,18 @@ export class UserProfile {
         method: "GET",
         headers,
       });
-      if (!res.ok) throw new Error(`Status ${res.status}`);
+      if (!res.ok) {
+        // show error message for unauthorized or other statuses
+        this.container.html(`<p>Unable to load usage data from server (status ${res.status}).</p>`);
+        return;
+      }
       const json = await res.json();
       this.render(json);
       return;
-    } catch (err) {}
+    } catch (err) {
+      console.error("Failed to fetch user usage:", err);
+      this.container.html("<p>Unable to load usage data from server.</p>");
+    }
   }
 
   render(data) {
