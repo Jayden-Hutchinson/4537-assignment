@@ -62,7 +62,7 @@ export class ImageForm {
         const compressedSizeKB = (compressedBlob.size / 1024).toFixed(1);
         console.log(`Compressed to ${compressedSizeKB} KB`);
 
-        load_message.html("Analyzing image...");
+        load_message.html(`<div class="loader"></div>`);
 
         // Convert compressed image to base64
         const base64Image = await blobToBase64(compressedBlob);
