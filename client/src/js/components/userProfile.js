@@ -1,5 +1,4 @@
-import { HTML, PROXY_BASE, SERVER_BASE_URL } from "../constants.js";
-import { UI } from "../../lang/en/user.js";
+import { HTML, SERVER_BASE_URL } from "../constants.js";
 
 export class UserProfile {
   constructor() {
