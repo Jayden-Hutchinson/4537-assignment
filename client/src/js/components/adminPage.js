@@ -1,4 +1,4 @@
-import { HTML, PROXY_BASE } from "../constants.js";
+import { HTML, PROXY_BASE, SERVER_BASE_URL } from "../constants.js";
 
 export class AdminPage {
   constructor() {
@@ -42,32 +42,25 @@ export class AdminPage {
 
     this.element.append(endpointsSection, usersSection);
 
-    // Try to fetch data from server; if it fails, attempt proxy fallback, else render sample
+    // Try to fetch data from server using the stored access token
     let endpointsData = null;
     let usersData = null;
+    const token = localStorage.getItem("accessToken");
+    const headers = { "Content-Type": "application/json" };
+    if (token) headers.Authorization = `Bearer ${token}`;
 
     try {
-      const res = await fetch("/api/admin/stats");
+      const res = await fetch(`${SERVER_BASE_URL}/api/admin/stats`, { method: "GET", headers });
       if (res.ok) endpointsData = await res.json();
-    } catch (e) {}
-
-    if (!endpointsData) {
-      try {
-        const res = await fetch(`${PROXY_BASE}/admin/stats`);
-        if (res.ok) endpointsData = await res.json();
-      } catch (e) {}
+    } catch (e) {
+      console.error("Failed to fetch admin stats:", e);
     }
 
     try {
-      const res = await fetch("/api/admin/user-usage");
+      const res = await fetch(`${SERVER_BASE_URL}/api/admin/user-usage`, { method: "GET", headers });
       if (res.ok) usersData = await res.json();
-    } catch (e) {}
-
-    if (!usersData) {
-      try {
-        const res = await fetch(`${PROXY_BASE}/admin/user-usage`);
-        if (res.ok) usersData = await res.json();
-      } catch (e) {}
+    } catch (e) {
+      console.error("Failed to fetch admin user usage:", e);
     }
 
     // If still null, show placeholder sample data

@@ -18,21 +18,17 @@ export class UserProfile {
     // Primary: try configured server base URL
     try {
       const res = await fetch(`${SERVER_BASE_URL}/api/user/usage`, { method: "GET", headers });
-      if (!res.ok) throw new Error(`Status ${res.status}`);
+      if (!res.ok) {
+        // show error message for unauthorized or other statuses
+        this.container.html(`<p>Unable to load usage data from server (status ${res.status}).</p>`);
+        return;
+      }
       const json = await res.json();
       this.render(json);
       return;
     } catch (err) {
-      // Fallback: try proxy or show message
-      try {
-        const proxyRes = await fetch(`${PROXY_BASE}/user/usage`, { method: "GET", headers });
-        if (!proxyRes.ok) throw new Error(`Status ${proxyRes.status}`);
-        const json = await proxyRes.json();
-        this.render(json);
-        return;
-      } catch (e) {
-        this.container.html("<p>Unable to load usage data from server.</p>");
-      }
+      console.error("Failed to fetch user usage:", err);
+      this.container.html("<p>Unable to load usage data from server.</p>");
     }
   }
 
