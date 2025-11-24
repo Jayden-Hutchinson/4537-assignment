@@ -30,7 +30,7 @@ const swaggerOptions = {
     },
     servers: [
       {
-        url: `http://localhost:${PORT}${BASE_URL}`,
+        url: `https://j-hutchinson.com/COMP4537/assignment/server`,
         description: "Development server",
       },
     ],
