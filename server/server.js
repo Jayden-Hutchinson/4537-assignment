@@ -30,7 +30,7 @@ const swaggerOptions = {
     },
     servers: [
       {
-        url: `http://localhost:${PORT}${BASE_URL}`,
+        url: `https://j-hutchinson.com/COMP4537/assignment/server`,
         description: "Development server",
       },
     ],
@@ -38,7 +38,7 @@ const swaggerOptions = {
   apis: ["./server.js"], // Path to the API routes file
 };
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+app.use(`${BASE_URL}/doc`, swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 // initialize database connection
 (async () => {
@@ -153,8 +153,13 @@ app.post(`${BASE_URL}/signup_user`, async (req, res) => {
  *             properties:
  *               email:
  *                 type: string
+ *                 example: user@example.com
  *               password:
  *                 type: string
+ *                 example: mypassword123
+ *           example:
+ *             email: user@example.com
+ *             password: mypassword123
  *     responses:
  *       200:
  *         description: Successful login
@@ -165,6 +170,8 @@ app.post(`${BASE_URL}/signup_user`, async (req, res) => {
  *               properties:
  *                 accessToken:
  *                   type: string
+ *             example:
+ *               accessToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
  *       400:
  *         description: Missing email or password
  *       401:
