@@ -54,15 +54,12 @@ app.use(`${BASE_URL}/doc`, swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 // Do not apply authentication globally — keep login public and protect routes explicitly.
 // The `auth` module exported a middleware function (authenticateToken).
-
 app.use(
   cors({
     origin: ["https://comp4537assignmentclient.netlify.app", "http://localhost:5500", "http://127.0.0.1:5500"],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
-    preflightContinue: false,
-    optionsSuccessStatus: 204
   })
 );
 

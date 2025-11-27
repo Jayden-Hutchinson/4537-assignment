@@ -34,7 +34,7 @@ export class AdminPage {
     if (token) headers.Authorization = `Bearer ${token}`;
 
     try {
-      const res = await fetch(`${SERVER_BASE_URL}/api/admin/stats`, { method: "GET", headers });
+      const res = await fetch(`${SERVER_BASE_URL}/api/admin/stats`, { method: "GET", headers, credentials: 'include' });
       if (res.ok) {
         endpointsData = await res.json();
       } else {
@@ -46,7 +46,7 @@ export class AdminPage {
 
     if (!endpointsData) {
       try {
-        const res = await fetch(`${SERVER_BASE_URL}/admin/stats`, { method: "GET", headers });
+        const res = await fetch(`${SERVER_BASE_URL}/admin/stats`, { method: "GET", headers, credentials: 'include' });
         if (res.ok) endpointsData = await res.json();
         else console.error("Fallback /admin/stats returned:", res.status);
       } catch (e) {
@@ -56,7 +56,7 @@ export class AdminPage {
 
 
     try {
-      const res = await fetch(`${SERVER_BASE_URL}/api/admin/user-usage`, { method: "GET", headers });
+      const res = await fetch(`${SERVER_BASE_URL}/api/admin/user-usage`, { method: "GET", headers, credentials: 'include' });
       if (res.ok) {
         usersData = await res.json();
       }
@@ -88,7 +88,7 @@ export class AdminPage {
 
     // Management section: fetch full users list and render management table with actions
     try {
-      const usersRes = await fetch(`${SERVER_BASE_URL}/api/admin/users`, { method: "GET", headers });
+      const usersRes = await fetch(`${SERVER_BASE_URL}/api/admin/users`, { method: "GET", headers, credentials: 'include' });
       if (usersRes.ok) {
         const usersList = await usersRes.json();
         const manageSection = $(HTML.ELEMENTS.DIV).addClass("manage-users");
@@ -127,7 +127,7 @@ export class AdminPage {
           const email = target.attr("data-email");
           if (!confirm(`Delete user ${email}? This cannot be undone.`)) return;
           try {
-            const delRes = await fetch(`${SERVER_BASE_URL}/api/admin/user/${encodeURIComponent(email)}`, { method: "DELETE", headers });
+            const delRes = await fetch(`${SERVER_BASE_URL}/api/admin/user/${encodeURIComponent(email)}`, { method: "DELETE", headers, credentials: 'include' });
             if (delRes.ok) {
               alert(`Deleted ${email}`);
               target.closest("tr").remove();
@@ -151,7 +151,7 @@ export class AdminPage {
           if (newPassword) body.password = newPassword;
           if (Object.keys(body).length === 0) return;
           try {
-            const patchRes = await fetch(`${SERVER_BASE_URL}/api/admin/user/${encodeURIComponent(email)}`, { method: "PATCH", headers, body: JSON.stringify(body) });
+            const patchRes = await fetch(`${SERVER_BASE_URL}/api/admin/user/${encodeURIComponent(email)}`, { method: "PATCH", headers, body: JSON.stringify(body), credentials: 'include' });
             if (patchRes.ok) {
               alert(`Updated ${email}`);
               // simple refresh: reload page state
