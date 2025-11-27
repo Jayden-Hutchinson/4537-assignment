@@ -1,7 +1,22 @@
-App 30422 output: stdin: is not a tty
-App 30422 output: [server] Server running at http://localhost:3000
-App 30422 output: [database] Database jhutchin_4537assignment connected with Host j-hutchinson.com
-App 30422 output: [database] Table "users" created or already exists
-App 30422 output: [server] Logging in jaydenh747@gmail.com
-App 30422 output: [server] User Found email: jaydenh747@gmail.com role: user
-App 30422 output: [server] jaydenh747@gmail.com Logged in
+App 24922 output: stdin: is not a tty
+App 24922 output: [server] Server running at http://localhost:3000
+App 24922 output: [database] Database jhutchin_4537assignment connected with Host j-hutchinson.com
+App 24922 output: [database] Table "users" created or already exists
+App 24922 output: [database] Table "usage_events" created or already exists
+App 24922 output: [server] Logging in admin@admin.com
+App 24922 output: [server] Logging in admin@admin.com
+App 24922 output: [server] User Found email: admin@admin.com role: admin
+App 24922 output: [server] admin@admin.com Logged in
+App 24922 output: [server] User Found email: admin@admin.com role: admin
+App 24922 output: [server] admin@admin.com Logged in
+App 24922 output: [server] Logging in admin@admin.com
+App 24922 output: [server] User Found email: admin@admin.com role: admin
+App 24922 output: [server] admin@admin.com Logged in
+App 31703 output: stdin: is not a tty
+App 31703 output: [server] Server running at http://localhost:3000
+App 31703 output: [database] Database jhutchin_4537assignment connected with Host j-hutchinson.com
+App 31703 output: [database] Table "users" created or already exists
+App 31703 output: [database] Table "usage_events" created or already exists
+App 31703 output: [server] Logging in admin@admin.com
+App 31703 output: [server] User Found email: admin@admin.com role: admin
+App 31703 output: [server] admin@admin.com Logged in

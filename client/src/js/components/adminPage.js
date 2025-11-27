@@ -34,11 +34,18 @@ export class AdminPage {
     if (token) headers.Authorization = `Bearer ${token}`;
 
     try {
-      const res = await fetch(`${SERVER_BASE_URL}/api/admin/stats`, { method: "GET", headers });
+      const res = await fetch(`${SERVER_BASE_URL}/api/admin/stats`, {
+        method: "GET",
+        headers,
+      });
       if (res.ok) {
         endpointsData = await res.json();
       } else {
-        console.error("Failed to fetch /api/admin/stats:", res.status, await res.text());
+        console.error(
+          "Failed to fetch /api/admin/stats:",
+          res.status,
+          await res.text()
+        );
       }
     } catch (e) {
       console.error("Error fetching /api/admin/stats:", e);
@@ -46,7 +53,10 @@ export class AdminPage {
 
     if (!endpointsData) {
       try {
-        const res = await fetch(`${SERVER_BASE_URL}/admin/stats`, { method: "GET", headers });
+        const res = await fetch(`${SERVER_BASE_URL}/admin/stats`, {
+          method: "GET",
+          headers,
+        });
         if (res.ok) endpointsData = await res.json();
         else console.error("Fallback /admin/stats returned:", res.status);
       } catch (e) {
@@ -54,9 +64,11 @@ export class AdminPage {
       }
     }
 
-
     try {
-      const res = await fetch(`${SERVER_BASE_URL}/api/admin/user-usage`, { method: "GET", headers });
+      const res = await fetch(`${SERVER_BASE_URL}/api/admin/user-usage`, {
+        method: "GET",
+        headers,
+      });
       if (res.ok) {
         usersData = await res.json();
       }
@@ -88,19 +100,32 @@ export class AdminPage {
 
     // Management section: fetch full users list and render management table with actions
     try {
-      const usersRes = await fetch(`${SERVER_BASE_URL}/api/admin/users`, { method: "GET", headers });
+      const usersRes = await fetch(`${SERVER_BASE_URL}/api/admin/users`, {
+        method: "GET",
+        headers,
+      });
       if (usersRes.ok) {
         const usersList = await usersRes.json();
         const manageSection = $(HTML.ELEMENTS.DIV).addClass("manage-users");
         manageSection.append($(HTML.ELEMENTS.H2).text("Manage Users"));
         const manageTable = $("<table>").addClass("manage-table");
         manageTable.append(
-          $("<thead>").append($("<tr>").append($("<th>").text("Email"), $("<th>").text("Role"), $("<th>").text("Total Requests"), $("<th>").text("Actions")))
+          $("<thead>").append(
+            $("<tr>").append(
+              $("<th>").text("Email"),
+              $("<th>").text("Role"),
+              $("<th>").text("Total Requests"),
+              $("<th>").text("Actions")
+            )
+          )
         );
         const mtbody = $("<tbody>");
 
         // map of totals by email
-        const totals = (usersData || []).reduce((acc, it) => { acc[it.email] = it.totalRequests; return acc; }, {});
+        const totals = (usersData || []).reduce((acc, it) => {
+          acc[it.email] = it.totalRequests;
+          return acc;
+        }, {});
 
         for (const u of usersList) {
           const email = u.email;
@@ -110,8 +135,14 @@ export class AdminPage {
             $("<td>").text(totals[email] || 0)
           );
 
-          const deleteBtn = $("<button>").text("Delete").addClass("admin-delete").attr("data-email", email);
-          const updateBtn = $("<button>").text("Update").addClass("admin-update").attr("data-email", email);
+          const deleteBtn = $("<button>")
+            .text("Delete")
+            .addClass("admin-delete")
+            .attr("data-email", email);
+          const updateBtn = $("<button>")
+            .text("Update")
+            .addClass("admin-update")
+            .attr("data-email", email);
           const actionsTd = $("<td>").append(deleteBtn, updateBtn);
           tr.append(actionsTd);
           mtbody.append(tr);
@@ -127,12 +158,16 @@ export class AdminPage {
           const email = target.attr("data-email");
           if (!confirm(`Delete user ${email}? This cannot be undone.`)) return;
           try {
-            const delRes = await fetch(`${SERVER_BASE_URL}/api/admin/user/${encodeURIComponent(email)}`, { method: "DELETE", headers });
+            const delRes = await fetch(
+              `${SERVER_BASE_URL}/api/admin/user/${encodeURIComponent(email)}`,
+              { method: "DELETE", headers }
+            );
             if (delRes.ok) {
               alert(`Deleted ${email}`);
               target.closest("tr").remove();
             } else {
               const t = await delRes.text();
+              console.log(`Failed to delete: ${delRes.status} ${t}`);
               alert(`Failed to delete: ${delRes.status} ${t}`);
             }
           } catch (err) {
@@ -144,14 +179,19 @@ export class AdminPage {
         this.element.find(".admin-update").on("click", async (e) => {
           const target = $(e.currentTarget);
           const email = target.attr("data-email");
-          const newEmail = prompt("Enter new email (leave blank to keep):", email) || null;
-          const newPassword = prompt("Enter new password (leave blank to keep):", "") || null;
+          const newEmail =
+            prompt("Enter new email (leave blank to keep):", email) || null;
+          const newPassword =
+            prompt("Enter new password (leave blank to keep):", "") || null;
           const body = {};
           if (newEmail && newEmail !== email) body.email = newEmail;
           if (newPassword) body.password = newPassword;
           if (Object.keys(body).length === 0) return;
           try {
-            const patchRes = await fetch(`${SERVER_BASE_URL}/api/admin/user/${encodeURIComponent(email)}`, { method: "PATCH", headers, body: JSON.stringify(body) });
+            const patchRes = await fetch(
+              `${SERVER_BASE_URL}/api/admin/user/${encodeURIComponent(email)}`,
+              { method: "PATCH", headers, body: JSON.stringify(body) }
+            );
             if (patchRes.ok) {
               alert(`Updated ${email}`);
               // simple refresh: reload page state

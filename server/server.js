@@ -57,10 +57,16 @@ app.use(`${BASE_URL}/doc`, swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 app.use(
   cors({
-    origin: "*",
+    origin: [
+      "https://comp4537assignmentclient.netlify.app",
+      "http://localhost:5500",
+      "http://127.0.0.1:5500",
+    ],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
   })
 );
 
@@ -99,6 +105,7 @@ app.use(async (req, res, next) => {
   } catch (e) {
     console.error("Stats middleware error:", e.message);
   }
+
   next();
 });
 
@@ -533,6 +540,7 @@ app.delete(`${BASE_URL}/api/admin/user/:email`, auth, async (req, res) => {
   const email = decodeURIComponent(req.params.email || "");
   if (!email) return res.status(400).json({ error: "Email required" });
   try {
+    console.log(email);
     await database.deleteUserByEmail(email);
     res.json({ success: true });
   } catch (e) {
