@@ -34,10 +34,14 @@ export class AdminPage {
     if (token) headers.Authorization = `Bearer ${token}`;
 
     try {
+<<<<<<< HEAD
       const res = await fetch(`${SERVER_BASE_URL}/api/admin/stats`, {
         method: "GET",
         headers,
       });
+=======
+      const res = await fetch(`${SERVER_BASE_URL}/api/admin/stats`, { method: "GET", headers, credentials: 'include' });
+>>>>>>> 0088d038e7d37f22b2fcab7efc3dd24f1e6312c1
       if (res.ok) {
         endpointsData = await res.json();
       } else {
@@ -53,10 +57,14 @@ export class AdminPage {
 
     if (!endpointsData) {
       try {
+<<<<<<< HEAD
         const res = await fetch(`${SERVER_BASE_URL}/admin/stats`, {
           method: "GET",
           headers,
         });
+=======
+        const res = await fetch(`${SERVER_BASE_URL}/admin/stats`, { method: "GET", headers, credentials: 'include' });
+>>>>>>> 0088d038e7d37f22b2fcab7efc3dd24f1e6312c1
         if (res.ok) endpointsData = await res.json();
         else console.error("Fallback /admin/stats returned:", res.status);
       } catch (e) {
@@ -65,10 +73,14 @@ export class AdminPage {
     }
 
     try {
+<<<<<<< HEAD
       const res = await fetch(`${SERVER_BASE_URL}/api/admin/user-usage`, {
         method: "GET",
         headers,
       });
+=======
+      const res = await fetch(`${SERVER_BASE_URL}/api/admin/user-usage`, { method: "GET", headers, credentials: 'include' });
+>>>>>>> 0088d038e7d37f22b2fcab7efc3dd24f1e6312c1
       if (res.ok) {
         usersData = await res.json();
       }
@@ -100,10 +112,14 @@ export class AdminPage {
 
     // Management section: fetch full users list and render management table with actions
     try {
+<<<<<<< HEAD
       const usersRes = await fetch(`${SERVER_BASE_URL}/api/admin/users`, {
         method: "GET",
         headers,
       });
+=======
+      const usersRes = await fetch(`${SERVER_BASE_URL}/api/admin/users`, { method: "GET", headers, credentials: 'include' });
+>>>>>>> 0088d038e7d37f22b2fcab7efc3dd24f1e6312c1
       if (usersRes.ok) {
         const usersList = await usersRes.json();
         const manageSection = $(HTML.ELEMENTS.DIV).addClass("manage-users");
@@ -158,10 +174,14 @@ export class AdminPage {
           const email = target.attr("data-email");
           if (!confirm(`Delete user ${email}? This cannot be undone.`)) return;
           try {
+<<<<<<< HEAD
             const delRes = await fetch(
               `${SERVER_BASE_URL}/api/admin/user/${encodeURIComponent(email)}`,
               { method: "DELETE", headers }
             );
+=======
+            const delRes = await fetch(`${SERVER_BASE_URL}/api/admin/user/${encodeURIComponent(email)}`, { method: "DELETE", headers, credentials: 'include' });
+>>>>>>> 0088d038e7d37f22b2fcab7efc3dd24f1e6312c1
             if (delRes.ok) {
               alert(`Deleted ${email}`);
               target.closest("tr").remove();
@@ -188,10 +208,14 @@ export class AdminPage {
           if (newPassword) body.password = newPassword;
           if (Object.keys(body).length === 0) return;
           try {
+<<<<<<< HEAD
             const patchRes = await fetch(
               `${SERVER_BASE_URL}/api/admin/user/${encodeURIComponent(email)}`,
               { method: "PATCH", headers, body: JSON.stringify(body) }
             );
+=======
+            const patchRes = await fetch(`${SERVER_BASE_URL}/api/admin/user/${encodeURIComponent(email)}`, { method: "PATCH", headers, body: JSON.stringify(body), credentials: 'include' });
+>>>>>>> 0088d038e7d37f22b2fcab7efc3dd24f1e6312c1
             if (patchRes.ok) {
               alert(`Updated ${email}`);
               // simple refresh: reload page state

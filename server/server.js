@@ -54,7 +54,6 @@ app.use(`${BASE_URL}/doc`, swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 // Do not apply authentication globally — keep login public and protect routes explicitly.
 // The `auth` module exported a middleware function (authenticateToken).
-
 app.use(
   cors({
     origin: [
