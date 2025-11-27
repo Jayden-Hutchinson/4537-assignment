@@ -39,7 +39,7 @@ const swaggerOptions = {
   apis: ["./server.js"], // Path to the API routes file
 };
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+app.use(`${BASE_URL}/doc`, swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 // initialize database connection
 (async () => {
